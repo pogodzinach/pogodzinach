@@ -15,7 +15,6 @@
             overflow: hidden;
             cursor: none;
             user-select: none;
-            background-color: #d0d0d0; /* Default background color */
         }
 
         canvas {
@@ -76,6 +75,7 @@
             canvas {
                 z-index: 1000; /* Bring canvas above everything on mobile */
                 background-color: transparent; /* Make canvas transparent */
+                pointer-events: none; /* Allow interactions with underlying elements */
             }
         }
     </style>
@@ -92,6 +92,17 @@
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+
+        // Function to generate a slightly darker pastel color
+        function getRandomDarkerPastelColor() {
+            const hue = Math.floor(Math.random() * 360); // Random hue
+            const saturation = 60; // Slightly desaturated for a pastel look
+            const lightness = 60; // Slightly darker than regular pastels
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        // Apply random pastel background on page load
+        document.body.style.backgroundColor = getRandomDarkerPastelColor();
 
         // Set canvas size to fill the viewport
         function resizeCanvas() {
