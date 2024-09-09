@@ -46,16 +46,24 @@
 
         .text {
             font-size: 32px;
-            text-align: center;
+            text-align: justify;
             font-weight: bold;
             color: black;
             padding: 20px;
+            line-height: 1.5;
         }
 
         .text-content {
             width: 80%;
             margin: 0 auto;
             padding-top: 100px;
+        }
+
+        /* Media queries for mobile */
+        @media (max-width: 768px) {
+            .text {
+                font-size: 24px;
+            }
         }
 
         /* Hide cursor on touch devices */
@@ -77,6 +85,7 @@
             .text {
                 font-size: 24px;
                 width: 90%;
+                text-align: justify; /* Ensure justified text on mobile */
             }
         }
     </style>
@@ -102,13 +111,33 @@
         wstęp 10zł
     </div>
 
-    <div id="exit" class="button" onclick="window.location.href='index.html'">X</div>
+    <div id="exit" class="button" onclick="goToMain()">X</div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+        let drawingEnabled = true;
 
-        // You can add your custom canvas drawing logic here.
+        // Function to disable drawing when the info page is open
+        function disableDrawing() {
+            drawingEnabled = false;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Function to enable drawing when returning to main page
+        function enableDrawing() {
+            drawingEnabled = true;
+            // Add custom drawing logic back here if needed
+        }
+
+        // Disable drawing while on the info page
+        disableDrawing();
+
+        // Navigate back to the main page
+        function goToMain() {
+            window.location.href = 'index.html';
+            enableDrawing();
+        }
     </script>
 </body>
 </html>
