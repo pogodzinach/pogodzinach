@@ -1,143 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Info Page</title>
+    <title>Po godzinach</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow-y: scroll; /* Enable scrolling */
-            cursor: none; /* Hide the cursor */
-            background-color: #d0d0d0; /* Default background color */
+            background-color: #f4f4f4;
         }
-
-        canvas {
-            touch-action: none; /* Prevent default touch behavior */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Default: behind everything */
-        }
-
-        #cursor {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        .button {
-            position: fixed;
-            margin: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            color: black;
-        }
-
-        #exit {
-            top: 0;
-            right: 0;
-        }
-
-        .text {
-            font-size: 32px;
-            text-align: justify;
-            font-weight: bold;
-            color: black;
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
             padding: 20px;
-            line-height: 1.5;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        .text-content {
-            width: 80%;
-            margin: 0 auto;
-            padding-top: 100px;
+        h1, h2, p {
+            text-align: justify;
         }
-
-        /* Media queries for mobile */
-        @media (max-width: 768px) {
-            .text {
-                font-size: 24px;
-            }
+        h1 {
+            font-size: 2em;
+            text-align: center;
         }
-
-        /* Hide cursor on touch devices */
-        @media (pointer: coarse) {
-            #cursor {
-                display: none;
-            }
-
-            canvas {
-                z-index: 1000;
-                width: 80%;
-                height: 80%;
-                top: 10%;
-                left: 10%;
-                background-color: transparent;
-                border: 5px solid #d0d0d0;
-            }
-
-            .text {
-                font-size: 24px;
-                width: 90%;
-                text-align: justify; /* Ensure justified text on mobile */
-            }
+        h2 {
+            margin-top: 1.5em;
+            font-size: 1.5em;
+        }
+        .price-list {
+            margin-top: 20px;
+        }
+        .price-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .price-list ul li {
+            font-size: 1.2em;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <canvas id="drawingCanvas"></canvas>
-    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
+    <div class="container">
+        <h1>Po godzinach</h1>
+        <p>
+            Po godzinach to publikacja mająca na celu promocję działalności artystycznej młodych twórców polskiej sceny wizualnej. Jest to cyklicznie wydawana książeczka celebrująca proces kreatywny, zabawę narzędziem i autentyczność.
+        </p>
+        <p>
+            Młodzi twórcy wizualni (ilustratorzy, graficy, malarze, rysownicy, etc.) mają niewiele miejsc na promocję – większość jest zdana na siebie. Małe formy pokazują szczery proces i wrażliwość twórcy. Szkicownik jest najbardziej intymnym miejscem, pełnym tajemnic, nie zawsze dostępnym dla większego grona. Po godzinach udostępnia rąbek tajemnicy i wyjmuje szkice z szuflady, tworząc publikację przypominającą w formie zbiorowy szkicownik ukazujący prawdę, otwierający na błąd, celebrujący go.
+        </p>
+        <p>
+            W pokoleniu setek subkultur, Po godzinach tworzy przestrzeń dla każdej estetyki, wrażliwości i różnych sposobów myślenia. Jedyne aspekty ograniczające proces twórczy to format i aktualizowany co każdą edycję temat. Kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.
+        </p>
 
-    <div class="text text-content">
-        Po godzinach to publikacja mająca na celu promocję działalności artystycznej młodych twórców polskiej sceny wizualnej.<br> 
-        Jest to cyklicznie wydawana książeczka celebrująca proces kreatywny, zabawę narzędziem i autentyczność.<br><br>
-        Młodzi twórcy wizualni (ilustratorzy, graficy, malarze, rysownicy, etc.) mają niewiele miejsc na promocję – większość jest zdana na siebie.<br> 
-        Małe formy pokazują szczery proces i wrażliwość twórcy.<br> 
-        Szkicownik jest najbardziej intymnym miejscem, pełnym tajemnic, nie zawsze dostępnym dla większego grona.<br> 
-        Po godzinach udostępnia rąbek tajemnicy i wyjmuje szkice z szuflady tworząc publikacje przypominającą w formie zbiorowy szkicownik ukazujący prawdę, otwierający na błąd, celebrujący go.<br><br>
-        W pokoleniu setek subkultur Po godzinach tworzy przestrzeń dla każdej estetyki, wrażliwości i różnych sposobów myślenia.<br> 
-        Jedyne aspekty ograniczające proces twórczy to format i aktualizowany, co każdą edycję temat.<br> 
-        Kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.<br><br>
-        Cena koszulki - 60zł<br>
-        Cena nadruku - 20zł<br>
-        Cena Zina - 50zł<br>
-        13.09 | 20:00<br>
-        wstęp 10zł
+        <h2>Informacje:</h2>
+        <p>Data: 13/09/24</p>
+        <p>Drzemka:</p>
+
+        <h2>Cennik:</h2>
+        <div class="price-list">
+            <ul>
+                <li>Wstęp: 10 zł</li>
+                <li>Cena koszuli: 60 zł</li>
+                <li>Cena nadruku: 20 zł</li>
+                <li>Cena zina: 50 zł</li>
+            </ul>
+        </div>
     </div>
-
-    <div id="exit" class="button" onclick="goToMain()">X</div>
-
-    <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        let drawingEnabled = true;
-
-        // Function to disable drawing when the info page is open
-        function disableDrawing() {
-            drawingEnabled = false;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Function to enable drawing when returning to main page
-        function enableDrawing() {
-            drawingEnabled = true;
-            // Add custom drawing logic back here if needed
-        }
-
-        // Disable drawing while on the info page
-        disableDrawing();
-
-        // Navigate back to the main page
-        function goToMain() {
-            window.location.href = 'index.html';
-            enableDrawing();
-        }
-    </script>
 </body>
 </html>
