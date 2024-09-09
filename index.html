@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pogodzinach Splash Page</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: none;
+            user-select: none; /* Disable text selection */
+            background-color: #d0d0d0; /* Default background color */
+        }
+
+        #logo, #cursor {
+            pointer-events: none; /* Disable clicking */
+        }
+
+        #logo {
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        #cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .button {
+            position: fixed;
+            margin: 20px;
+            font-size: 32px; /* Bigger font size */
+            font-weight: bold; /* Bold text */
+            cursor: pointer;
+            color: black;
+        }
+
+        #info {
+            top: 0;
+            left: 0;
+        }
+
+        #insta {
+            top: 0;
+            right: 0;
+        }
+
+        .button:hover {
+            text-decoration: underline;
+        }
+
+        /* Hide the cursor on touch devices */
+        @media (pointer: coarse) {
+            #cursor {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <img id="logo" src="pogodzinachlogo.png" alt="Pogodzinach Logo">
+    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
+    <canvas id="drawCanvas"></canvas>
+
+    <!-- Buttons -->
+    <div id="info" class="button">INFO</div>
+    <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
+
+    <script>
+        // Function to generate slightly darker pastel color
+        function getRandomDarkerPastelColor() {
+            const hue = Math.floor(Math.random() * 360); // Random hue
+            const saturation = 60; // Keep it lower to make it look darker but not too dark
+            const lightness = 60; // Slightly darker than a typical pastel
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        // Set a random darker pastel color as the background
+        document.body.style.backgroundColor = getRandomDarkerPastelColor();
+
+        const cursor = document.getElementById('cursor');
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas dimensions to match the window size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas(); // Initial setup
+
+        // Desktop Drawing System (mouse moves continuously draw)
+        if (window.matchMedia("(pointer: fine)").matches) {  // Detect desktop
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+
+                ctx.lineTo(e.clientX, e.clientY);
+                ctx.strokeStyle = 'black'; // Brush color is always black
+                ctx.lineWidth = 8; // Brush size
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            });
+
+            // Start a new path every time mouse is moved
+            document.addEventListener('mousemove', (e) => {
+                ctx.beginPath(); // Start a new path
+                ctx.moveTo(e.clientX, e.clientY);
+            });
+        }
+
+        // Mobile Drawing System (tap and swipe to draw)
+        if (window.matchMedia("(pointer: coarse)").matches) {  // Detect touch devices
+            let isDrawing = false;
+
+            canvas.addEventListener('touchstart', (e) => {
+                isDrawing = true;
+                const touch = e.touches[0]; // Get the first touch
+                ctx.beginPath();
+                ctx.moveTo(touch.clientX, touch.clientY);
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (isDrawing) {
+                    const touch = e.touches[0]; // Get the first touch
+                    ctx.lineTo(touch.clientX, touch.clientY);
+                    ctx.strokeStyle = 'black'; // Brush color
+                    ctx.lineWidth = 8; // Brush size
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                    ctx.beginPath(); // Begin new path for smooth continuous drawing
+                    ctx.moveTo(touch.clientX, touch.clientY); // Continue from the current position
+                }
+                e.preventDefault(); // Prevent scrolling
+            });
+
+            canvas.addEventListener('touchend', () => {
+                isDrawing = false; // Stop drawing when touch ends
+            });
+
+            // Prevent touch scrolling during drawing
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
+        }
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+    </script>
+</body>
+</html>
