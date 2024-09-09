@@ -3,28 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mobile Drawing Canvas</title>
+    <title>Responsive Drawing Canvas</title>
     <style>
-        html, body {
+        body {
             margin: 0;
             padding: 0;
-            height: 100%;
-            overflow: hidden;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f4f4f4;
+            overflow: hidden;
+            cursor: none;
+            user-select: none;
+            background-color: #d0d0d0; /* Default background color */
         }
 
         canvas {
             background-color: white;
             border: 1px solid black;
             touch-action: none; /* Prevent default touch behavior */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        #logo {
+            max-width: 80%;
+            max-height: 80%;
+            pointer-events: none;
+        }
+
+        #cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .button {
+            position: fixed;
+            margin: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+
+        #info {
+            top: 0;
+            left: 0;
+        }
+
+        #insta {
+            top: 0;
+            right: 0;
+        }
+
+        .button:hover {
+            text-decoration: underline;
+        }
+
+        /* Hide cursor on touch devices */
+        @media (pointer: coarse) {
+            #cursor {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
+    <img id="logo" src="pogodzinachlogo.png" alt="Pogodzinach Logo">
+    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawingCanvas"></canvas>
+
+    <!-- Buttons -->
+    <div id="info" class="button">INFO</div>
+    <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
@@ -38,37 +92,70 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Initial settings
-        ctx.lineWidth = 10; // Thick stroke
-        ctx.lineCap = 'round';
-        ctx.strokeStyle = 'black';
-
-        let drawing = false;
-
-        // Function to start drawing
-        function startDrawing(event) {
-            drawing = true;
-            ctx.beginPath();
-            ctx.moveTo(event.touches[0].clientX, event.touches[0].clientY);
+        // Function to get touch position on the canvas
+        function getTouchPos(canvas, touchEvent) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: touchEvent.touches[0].clientX - rect.left,
+                y: touchEvent.touches[0].clientY - rect.top
+            };
         }
 
-        // Function to draw on the canvas
-        function draw(event) {
-            if (!drawing) return;
-            ctx.lineTo(event.touches[0].clientX, event.touches[0].clientY);
-            ctx.stroke();
-        }
+        // Feature detection for touch or mouse
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            // Mobile drawing implementation
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
 
-        // Function to stop drawing
-        function stopDrawing() {
-            drawing = false;
-            ctx.closePath();
-        }
+            let drawing = false;
 
-        // Event listeners for touch interactions
-        canvas.addEventListener('touchstart', startDrawing);
-        canvas.addEventListener('touchmove', draw);
-        canvas.addEventListener('touchend', stopDrawing);
+            function startDrawing(event) {
+                drawing = true;
+                const pos = getTouchPos(canvas, event);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(event) {
+                if (!drawing) return;
+                const pos = getTouchPos(canvas, event);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function stopDrawing() {
+                drawing = false;
+                ctx.closePath();
+            }
+
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+        } else {
+            // Desktop drawing implementation
+            const cursor = document.getElementById('cursor');
+
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+
+                ctx.lineTo(e.clientX, e.clientY);
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 8;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            });
+
+            document.addEventListener('mousedown', (e) => {
+                ctx.beginPath();
+                ctx.moveTo(e.clientX, e.clientY);
+            });
+
+            document.addEventListener('mouseup', () => {
+                ctx.closePath();
+            });
+        }
     </script>
 </body>
 </html>
