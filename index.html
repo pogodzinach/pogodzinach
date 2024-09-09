@@ -95,7 +95,7 @@
     <canvas id="drawingCanvas"></canvas>
 
     <!-- Buttons -->
-    <div id="info" class="button" onclick="window.location.href='info.html'">INFO</div>
+    <div id="info" class="button" onclick="window.location.href='#infoPage'">INFO</div>
     <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
     <div id="drzemka" class="button" onclick="window.location.href='https://www.facebook.com/events/926342952626759'">003 DRZEMKA 13.09 SPATIF</div>
 
@@ -198,5 +198,94 @@
             });
         }
     </script>
+
+    <!-- Info Page -->
+    <div id="infoPage" style="display: none;">
+        <canvas id="infoCanvas"></canvas>
+        <img id="infoCursor" src="cursorhover.png" alt="Custom Cursor">
+
+        <div class="text text-content">
+            Cena koszulki - 60zł<br>
+            Cena nadruku - 20zł<br>
+            Cena Zina - 50zł<br>
+            13.09 | 20:00<br>
+            wstęp 10zł
+        </div>
+
+        <div id="exit" class="button" onclick="window.location.href='#mainPage'">X</div>
+
+        <style>
+            /* Hide cursor on desktop */
+            @media (pointer: fine) {
+                #infoCursor {
+                    display: none; /* Hide the custom cursor on desktop */
+                }
+            }
+        </style>
+
+        <script>
+            const infoCanvas = document.getElementById('infoCanvas');
+            const infoCtx = infoCanvas.getContext('2d');
+
+            // Set canvas size for the info page
+            function resizeInfoCanvas() {
+                infoCanvas.width = window.innerWidth;
+                infoCanvas.height = window.innerHeight;
+            }
+            resizeInfoCanvas();
+            window.addEventListener('resize', resizeInfoCanvas);
+
+            // Similar drawing system for the info page
+            if (window.matchMedia("(pointer: coarse)").matches) {
+                // Mobile drawing implementation
+                infoCtx.lineWidth = 10;
+                infoCtx.lineCap = 'round';
+                infoCtx.strokeStyle = 'black';
+
+                let drawing = false;
+
+                function startDrawing(event) {
+                    drawing = true;
+                    const pos = getTouchPos(infoCanvas, event);
+                    infoCtx.beginPath();
+                    infoCtx.moveTo(pos.x, pos.y);
+                }
+
+                function draw(event) {
+                    if (!drawing) return;
+                    const pos = getTouchPos(infoCanvas, event);
+                    infoCtx.lineTo(pos.x, pos.y);
+                    infoCtx.stroke();
+                }
+
+                function stopDrawing() {
+                    drawing = false;
+                    infoCtx.closePath();
+                }
+
+                infoCanvas.addEventListener('touchstart', startDrawing);
+                infoCanvas.addEventListener('touchmove', draw);
+                infoCanvas.addEventListener('touchend', stopDrawing);
+            } else {
+                // Desktop drawing implementation
+                document.addEventListener('mousemove', (e) => {
+                    infoCtx.lineTo(e.clientX, e.clientY);
+                    infoCtx.strokeStyle = 'black';
+                    infoCtx.lineWidth = 8;
+                    infoCtx.lineCap = 'round';
+                    infoCtx.stroke();
+                });
+
+                document.addEventListener('mousedown', (e) => {
+                    infoCtx.beginPath();
+                    infoCtx.moveTo(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseup', () => {
+                    infoCtx.closePath();
+                });
+            }
+        </script>
+    </div>
 </body>
 </html>
