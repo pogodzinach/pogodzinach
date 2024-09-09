@@ -1,3 +1,4 @@
+i have this code: 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,9 +13,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Disable scrolling */
+            overflow: hidden;
             cursor: none;
             user-select: none;
+            background-color: #d0d0d0; /* Default background color */
         }
 
         canvas {
@@ -75,7 +77,6 @@
             canvas {
                 z-index: 1000; /* Bring canvas above everything on mobile */
                 background-color: transparent; /* Make canvas transparent */
-                pointer-events: none; /* Allow touch events to go through the canvas */
             }
         }
     </style>
@@ -100,17 +101,6 @@
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
-
-        // Change background color on each page refresh
-        const darkPastelColors = [
-            '#776d8a', '#5f778d', '#687d6c', '#80756e', '#7b6f82'
-        ];
-
-        function setRandomBackgroundColor() {
-            const randomColor = darkPastelColors[Math.floor(Math.random() * darkPastelColors.length)];
-            document.body.style.backgroundColor = randomColor;
-        }
-        setRandomBackgroundColor();
 
         // Function to get touch position on the canvas
         function getTouchPos(canvas, touchEvent) {
