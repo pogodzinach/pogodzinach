@@ -49,17 +49,15 @@
         /* Style for the text scattering effect */
         span.letter {
             display: inline-block;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.5s ease, opacity 0.5s ease;
             will-change: transform;
         }
 
         .scatter {
-            transform: translate3d(
-                calc(-50px + 100px * random()), 
-                calc(-50px + 100px * random()), 
-                0
-            ) rotate(calc(-30deg + 60deg * random()));
-            opacity: 0;
+            transform: translate(
+                calc(-100px + 200px * random()), 
+                calc(-100px + 200px * random())
+            ) rotate(calc(-45deg + 90deg * random()));
         }
 
         /* Mobile adjustments */
@@ -84,6 +82,11 @@
     <script>
         // Select all letters
         const letters = document.querySelectorAll('.letter');
+
+        // Random number generator function for transform randomness
+        function random() {
+            return Math.random();
+        }
 
         // Add event listeners for mouse hover or touch
         document.getElementById('content').addEventListener('mouseover', () => {
