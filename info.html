@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Info Page</title>
-    <!-- Google Font for an elegant look -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Google Font for an elegant, minimalistic look -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Helvetica+Neue:wght@300&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -14,20 +14,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f7f7f7; /* Light background for a subtle, elegant look */
-            font-family: 'Playfair Display', serif; /* Elegant, professional serif font */
-            color: #333;
+            background-color: #f9f9f9; /* Flat, off-white background */
+            font-family: 'Helvetica Neue', sans-serif;
+            color: #333; /* Dark grey for elegant text */
         }
 
         #content {
             width: 60%;
-            padding: 40px;
-            background-color: white; /* White background to highlight the text */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            max-width: 900px;
+            font-family: 'Playfair Display', serif; /* Elegant serif font for the body text */
             font-size: 20px;
             line-height: 1.8;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             text-align: justify;
+            padding: 0;
+            margin: 0;
         }
 
         .close-button {
@@ -35,22 +36,28 @@
             top: 20px;
             right: 30px;
             font-size: 32px;
-            font-weight: bold;
+            font-family: 'Helvetica Neue', sans-serif;
+            font-weight: 300;
             cursor: pointer;
             color: #333;
             background-color: transparent;
             border: none;
+            outline: none;
         }
 
         .close-button:hover {
-            color: #666; /* Subtle hover effect for the button */
+            color: #999; /* Subtle hover effect */
         }
 
-        /* Ensure mobile responsiveness */
+        /* Mobile adjustments */
         @media (max-width: 768px) {
             #content {
                 width: 90%;
                 font-size: 18px;
+            }
+
+            .close-button {
+                font-size: 28px;
             }
         }
     </style>
