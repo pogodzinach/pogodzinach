@@ -124,39 +124,27 @@
             });
         }
 
-        // Mobile Drawing System (tap and swipe to draw)
+        // Mobile Drawing System (touch and hold to draw)
         if (window.matchMedia("(pointer: coarse)").matches) {  // Detect touch devices
             let isDrawing = false;
-            let lastTouchX, lastTouchY;
 
             canvas.addEventListener('touchstart', (e) => {
                 isDrawing = true;
                 const touch = e.touches[0]; // Get the first touch
-                lastTouchX = touch.clientX;
-                lastTouchY = touch.clientY;
                 ctx.beginPath();
-                ctx.moveTo(lastTouchX, lastTouchY);
+                ctx.moveTo(touch.clientX, touch.clientY);
             });
 
             canvas.addEventListener('touchmove', (e) => {
                 if (isDrawing) {
-                    const touch = e.touches[0]; // Get the first touch
-                    let touchX = touch.clientX;
-                    let touchY = touch.clientY;
-
-                    ctx.beginPath(); // Start a new path
-                    ctx.moveTo(lastTouchX, lastTouchY); // Move to the last known touch point
-                    ctx.lineTo(touchX, touchY); // Draw to the current touch point
+                    const touch = e.touches[0]; // Get the current touch
+                    ctx.lineTo(touch.clientX, touch.clientY);
                     ctx.strokeStyle = 'black'; // Brush color
                     ctx.lineWidth = 8; // Brush size
                     ctx.lineCap = 'round';
                     ctx.stroke();
-
-                    // Update the last touch points
-                    lastTouchX = touchX;
-                    lastTouchY = touchY;
                 }
-                e.preventDefault(); // Prevent scrolling
+                e.preventDefault(); // Prevent scrolling while drawing
             });
 
             canvas.addEventListener('touchend', () => {
