@@ -32,6 +32,14 @@
             margin: 0;
         }
 
+        #credits {
+            font-family: Arial, sans-serif; /* Change to Arial */
+            font-weight: bold; /* Make it bold */
+            font-size: 16px; /* Smaller font size for credits */
+            text-align: center; /* Center the credits text */
+            margin-top: 30px; /* Add space before credits */
+        }
+
         .close-button {
             position: fixed;
             top: 20px;
@@ -57,6 +65,10 @@
                 font-size: 24px; /* Slightly smaller font on mobile */
             }
 
+            #credits {
+                font-size: 14px; /* Smaller credits on mobile */
+            }
+
             .close-button {
                 font-size: 28px;
             }
@@ -65,15 +77,19 @@
 </head>
 <body>
 
-    <!-- Scrollable text content -->
+    <!-- Main Text Content -->
     <div id="content">
-        "PO GODZINACH" TO CYKLICZNA PUBLIKACJA PROMUJĄCA MŁODYCH TWÓRCÓW POLSKIEJ SCENY WIZUALNEJ I NIE TYLKO, UKAZUJĄCA ICH KREATYWNY PROCES I AUTENTYCZNOŚĆ. PROJEKT TWORZY PRZESTRZEŃ DLA RÓŻNYCH ESTETYK I WRAŻLIWOŚCI, PRZYPOMINAJĄC ZBIOROWY SZKICOWNIK, KTÓRY CELEBRUJE BŁĘDY I SWOBODĘ TWÓRCZĄ. KAŻDA EDYCJA MA FORMAT I TEMAT, KRYTERIUM SPAJAJĄCYM WSZYSTKO W CAŁOŚĆ JEST PASJA I ZABAWA Z TWORZENIA.<br><br>
+        "PO GODZINACH" TO CYKLICZNA PUBLIKACJA PROMUJĄCA MŁODYCH TWÓRCÓW POLSKIEJ SCENY WIZUALNEJ I NIE TYLKO, UKAZUJĄCA ICH KREATYWNY PROCES I AUTENTYCZNOŚĆ. PROJEKT TWORZY PRZESTRZEŃ DLA RÓŻNYCH ESTETYK I WRAŻLIWOŚCI, PRZYPOMINAJĄC ZBIOROWY SZKICOWNIK, KTÓRY CELEBRUJE BŁĘDY I SWOBODĘ TWÓRCZĄ. KAŻDA EDYCJA MA FORMAT I TEMAT, KRYTERIUM SPAJAJĄCYM WSZYSTKO W CAŁOŚĆ JEST PASJA I ZABAWA Z TWORZENIA.
+    </div>
+
+    <!-- Credits Section -->
+    <div id="credits">
         CURATED BY: @CROLICOVSKA @WIELOCHANATALIA<br>
         LOGO: @ELEKTRASTATION<br>
         WEB: @ROBOCIK.2
     </div>
 
-    <!-- 'X' button -->
+    <!-- 'X' Button -->
     <button class="close-button" onclick="window.location.href='index.html'">X</button>
 
 </body>
