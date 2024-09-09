@@ -120,6 +120,13 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
+        // Disable scrolling on mobile
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            document.body.addEventListener('touchmove', function(event) {
+                event.preventDefault();
+            }, { passive: false });
+        }
+
         // Function to get touch position on the canvas
         function getTouchPos(canvas, touchEvent) {
             const rect = canvas.getBoundingClientRect();
