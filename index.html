@@ -19,7 +19,6 @@
         }
 
         canvas {
-            background-color: white;
             border: 1px solid black;
             touch-action: none; /* Prevent default touch behavior */
             position: fixed;
@@ -72,10 +71,11 @@
             }
         }
 
-        /* On mobile, bring the canvas to the top */
+        /* On mobile, make the canvas transparent and bring it to the top */
         @media (pointer: coarse) {
             canvas {
                 z-index: 1000; /* Bring canvas above everything on mobile */
+                background-color: transparent; /* Make canvas transparent */
             }
         }
     </style>
