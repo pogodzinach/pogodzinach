@@ -71,10 +71,14 @@
             }
         }
 
-        /* On mobile, make the canvas transparent and bring it to the top */
+        /* On mobile, make the canvas smaller and transparent */
         @media (pointer: coarse) {
             canvas {
                 z-index: 1000; /* Bring canvas above everything on mobile */
+                width: 80%; /* Make canvas smaller */
+                height: 80%; /* Adjust height accordingly */
+                top: 10%; /* Center the canvas */
+                left: 10%;
                 background-color: transparent; /* Make canvas transparent */
             }
         }
@@ -93,6 +97,16 @@
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
+        // Function to generate a random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
         // Set canvas size to fill the viewport
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -100,6 +114,11 @@
         }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
+
+        // Change background color on desktop on refresh
+        if (!window.matchMedia("(pointer: coarse)").matches) {
+            document.body.style.backgroundColor = getRandomColor();
+        }
 
         // Function to get touch position on the canvas
         function getTouchPos(canvas, touchEvent) {
