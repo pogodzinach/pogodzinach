@@ -127,24 +127,34 @@
         // Mobile Drawing System (tap and swipe to draw)
         if (window.matchMedia("(pointer: coarse)").matches) {  // Detect touch devices
             let isDrawing = false;
+            let lastTouchX, lastTouchY;
 
             canvas.addEventListener('touchstart', (e) => {
                 isDrawing = true;
                 const touch = e.touches[0]; // Get the first touch
+                lastTouchX = touch.clientX;
+                lastTouchY = touch.clientY;
                 ctx.beginPath();
-                ctx.moveTo(touch.clientX, touch.clientY);
+                ctx.moveTo(lastTouchX, lastTouchY);
             });
 
             canvas.addEventListener('touchmove', (e) => {
                 if (isDrawing) {
                     const touch = e.touches[0]; // Get the first touch
-                    ctx.lineTo(touch.clientX, touch.clientY);
+                    let touchX = touch.clientX;
+                    let touchY = touch.clientY;
+
+                    ctx.beginPath(); // Start a new path
+                    ctx.moveTo(lastTouchX, lastTouchY); // Move to the last known touch point
+                    ctx.lineTo(touchX, touchY); // Draw to the current touch point
                     ctx.strokeStyle = 'black'; // Brush color
                     ctx.lineWidth = 8; // Brush size
                     ctx.lineCap = 'round';
                     ctx.stroke();
-                    ctx.beginPath(); // Begin new path for smooth continuous drawing
-                    ctx.moveTo(touch.clientX, touch.clientY); // Continue from the current position
+
+                    // Update the last touch points
+                    lastTouchX = touchX;
+                    lastTouchY = touchY;
                 }
                 e.preventDefault(); // Prevent scrolling
             });
