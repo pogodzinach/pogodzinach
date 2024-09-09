@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Info</title>
+    <title>Info Page</title>
     <!-- Google Font for Cooper Black-like look with Polish letters -->
     <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&display=swap" rel="stylesheet">
     <style>
@@ -19,17 +19,19 @@
             color: #333; /* Dark grey for elegant text */
         }
 
-        #content {
+        #container {
             width: 60%;
             max-width: 900px;
+        }
+
+        #content {
             font-family: 'Vollkorn', serif; /* Elegant serif font for the body text */
             font-size: 28px; /* Larger text size */
             line-height: 1.8;
             letter-spacing: 0.5px; /* Elegant spacing */
             text-align: justify;
             font-weight: bold; /* Bold text */
-            padding: 0;
-            margin: 0;
+            margin-bottom: 20px; /* Add spacing between main text and credits */
         }
 
         #credits {
@@ -37,7 +39,6 @@
             font-weight: bold; /* Make it bold */
             font-size: 16px; /* Smaller font size for credits */
             text-align: center; /* Center the credits text */
-            margin-top: 20px; /* Slight margin for spacing */
         }
 
         .close-button {
@@ -60,8 +61,11 @@
 
         /* Mobile adjustments */
         @media (max-width: 768px) {
-            #content {
+            #container {
                 width: 90%;
+            }
+
+            #content {
                 font-size: 24px; /* Slightly smaller font on mobile */
             }
 
@@ -77,16 +81,19 @@
 </head>
 <body>
 
-    <!-- Main Text Content -->
-    <div id="content">
-        "Po godzinach" to cykliczna publikacja promująca młodych twórców polskiej sceny wizualnej i nie tylko, ukazująca ich kreatywny proces i autentyczność. Projekt tworzy przestrzeń dla różnych estetyk i wrażliwości, przypominając zbiorowy szkicownik, który celebruje błędy i swobodę twórczą. Każda edycja ma format i temat, kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.
-    </div>
+    <!-- Container for text and credits -->
+    <div id="container">
+        <!-- Main Text Content -->
+        <div id="content">
+            "Po godzinach" to cykliczna publikacja promująca młodych twórców polskiej sceny wizualnej i nie tylko, ukazująca ich kreatywny proces i autentyczność. Projekt tworzy przestrzeń dla różnych estetyk i wrażliwości, przypominając zbiorowy szkicownik, który celebruje błędy i swobodę twórczą. Każda edycja ma format i temat, kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.
+        </div>
 
-    <!-- Credits Section directly under the main text -->
-    <div id="credits">
-        Curated by: @crolicovska @wielochanatalia<br>
-        Logo: @elektrastation<br>
-        Web: @robocik.2
+        <!-- Credits Section directly under the main text -->
+        <div id="credits">
+            Curated by: @crolicovska @wielochanatalia<br>
+            Logo: @elektrastation<br>
+            Web: @robocik.2
+        </div>
     </div>
 
     <!-- 'X' Button -->
