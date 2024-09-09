@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Po godzinach</title>
+    <title>Responsive Drawing Canvas</title>
     <style>
         body {
             margin: 0;
@@ -25,7 +25,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            z-index: -1;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Default: behind everything */
         }
 
         #logo {
@@ -67,6 +69,13 @@
         @media (pointer: coarse) {
             #cursor {
                 display: none;
+            }
+        }
+
+        /* On mobile, bring the canvas to the top */
+        @media (pointer: coarse) {
+            canvas {
+                z-index: 1000; /* Bring canvas above everything on mobile */
             }
         }
     </style>
