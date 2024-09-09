@@ -29,10 +29,6 @@
         }
 
         #logo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* Center the image */
             max-width: 80%;
             max-height: 80%;
             pointer-events: none;
@@ -91,68 +87,30 @@
                 border: 5px solid #d0d0d0; /* Match canvas border with background color */
             }
         }
-
-        /* Hide content initially for info page */
-        #infoPage {
-            display: none;
-        }
     </style>
 </head>
 <body>
-    <!-- Main Page Content -->
-    <div id="mainPage">
-        <img id="logo" src="pogodzinachlogo.png" alt="Pogodzinach Logo">
-        <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
-        <canvas id="drawingCanvas"></canvas>
+    <img id="logo" src="pogodzinachlogo.png" alt="Pogodzinach Logo">
+    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
+    <canvas id="drawingCanvas"></canvas>
 
-        <!-- Buttons -->
-        <div id="info" class="button" onclick="showInfo()">INFO</div>
-        <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
-        <div id="drzemka" class="button" onclick="window.location.href='https://www.facebook.com/events/926342952626759'">003 DRZEMKA 13.09 SPATIF</div>
-    </div>
-
-    <!-- Info Page Content -->
-    <div id="infoPage">
-        <canvas id="infoCanvas"></canvas>
-        <img id="infoCursor" src="cursorhover.png" alt="Custom Cursor">
-
-        <div class="text text-content button">
-            Cena koszulki - 60zł<br>
-            Cena nadruku - 20zł<br>
-            Cena Zina - 50zł<br>
-            13.09 | 20:00<br>
-            wstęp 10zł
-        </div>
-
-        <div id="exit" class="button" style="top: 0; right: 0;" onclick="showMain()">X</div>
-
-        <style>
-            /* Hide cursor on desktop */
-            @media (pointer: fine) {
-                #infoCursor {
-                    display: none; /* Hide the custom cursor on desktop */
-                }
-            }
-        </style>
-    </div>
+    <!-- Buttons -->
+    <div id="info" class="button" onclick="window.location.href='info.html'">INFO</div>
+    <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
+    <div id="drzemka" class="button" onclick="window.location.href='https://www.facebook.com/events/926342952626759'">003 DRZEMKA 13.09 SPATIF</div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
 
-        const infoCanvas = document.getElementById('infoCanvas');
-        const infoCtx = infoCanvas.getContext('2d');
-
-        // Function to show the info page and hide the main page
-        function showInfo() {
-            document.getElementById('mainPage').style.display = 'none';
-            document.getElementById('infoPage').style.display = 'block';
-        }
-
-        // Function to show the main page and hide the info page
-        function showMain() {
-            document.getElementById('mainPage').style.display = 'block';
-            document.getElementById('infoPage').style.display = 'none';
+        // Function to generate a random color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
         }
 
         // Set canvas size to fill the viewport
@@ -163,16 +121,60 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // Set canvas size for the info page
-        function resizeInfoCanvas() {
-            infoCanvas.width = window.innerWidth;
-            infoCanvas.height = window.innerHeight;
-        }
-        resizeInfoCanvas();
-        window.addEventListener('resize', resizeInfoCanvas);
-
-        // Drawing on the main page
+        // Change background color on desktop on refresh
         if (!window.matchMedia("(pointer: coarse)").matches) {
+            document.body.style.backgroundColor = getRandomColor();
+        }
+
+        // Disable scrolling on mobile
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            document.body.addEventListener('touchmove', function(event) {
+                event.preventDefault();
+            }, { passive: false });
+        }
+
+        // Function to get touch position on the canvas (adjusted for offset)
+        function getTouchPos(canvas, touchEvent) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (touchEvent.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+                y: (touchEvent.touches[0].clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        // Feature detection for touch or mouse
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            // Mobile drawing implementation
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+
+            let drawing = false;
+
+            function startDrawing(event) {
+                drawing = true;
+                const pos = getTouchPos(canvas, event);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            }
+
+            function draw(event) {
+                if (!drawing) return;
+                const pos = getTouchPos(canvas, event);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
+
+            function stopDrawing() {
+                drawing = false;
+                ctx.closePath();
+            }
+
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+        } else {
+            // Desktop drawing implementation
             const cursor = document.getElementById('cursor');
 
             document.addEventListener('mousemove', (e) => {
@@ -193,26 +195,6 @@
 
             document.addEventListener('mouseup', () => {
                 ctx.closePath();
-            });
-        }
-
-        // Drawing on the info page
-        if (!window.matchMedia("(pointer: coarse)").matches) {
-            document.addEventListener('mousemove', (e) => {
-                infoCtx.lineTo(e.clientX, e.clientY);
-                infoCtx.strokeStyle = 'black';
-                infoCtx.lineWidth = 8;
-                infoCtx.lineCap = 'round';
-                infoCtx.stroke();
-            });
-
-            document.addEventListener('mousedown', (e) => {
-                infoCtx.beginPath();
-                infoCtx.moveTo(e.clientX, e.clientY);
-            });
-
-            document.addEventListener('mouseup', () => {
-                infoCtx.closePath();
             });
         }
     </script>
