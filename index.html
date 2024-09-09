@@ -29,6 +29,10 @@
         }
 
         #logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Center the image */
             max-width: 80%;
             max-height: 80%;
             pointer-events: none;
@@ -112,7 +116,7 @@
         <canvas id="infoCanvas"></canvas>
         <img id="infoCursor" src="cursorhover.png" alt="Custom Cursor">
 
-        <div class="text text-content">
+        <div class="text text-content button">
             Cena koszulki - 60zł<br>
             Cena nadruku - 20zł<br>
             Cena Zina - 50zł<br>
@@ -120,7 +124,7 @@
             wstęp 10zł
         </div>
 
-        <div id="exit" class="button" onclick="showMain()">X</div>
+        <div id="exit" class="button" style="top: 0; right: 0;" onclick="showMain()">X</div>
 
         <style>
             /* Hide cursor on desktop */
