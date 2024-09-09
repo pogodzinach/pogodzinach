@@ -1,75 +1,85 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Po godzinach</title>
+    <title>Info Page</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #d0d0d0;
+            user-select: none;
+            font-family: Arial, sans-serif;
         }
-        .container {
-            max-width: 800px;
-            margin: 20px auto;
+
+        #content {
+            width: 60%;
+            height: 60%;
             padding: 20px;
             background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2, p {
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
             text-align: justify;
+            font-size: 18px;
+            line-height: 1.5;
         }
-        h1 {
-            font-size: 2em;
-            text-align: center;
+
+        .close-button {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+            background-color: transparent;
+            border: none;
         }
-        h2 {
-            margin-top: 1.5em;
-            font-size: 1.5em;
+
+        .close-button:hover {
+            text-decoration: underline;
         }
-        .price-list {
-            margin-top: 20px;
+
+        /* Scrollable content */
+        #content::-webkit-scrollbar {
+            width: 8px;
         }
-        .price-list ul {
-            list-style-type: none;
-            padding: 0;
+        #content::-webkit-scrollbar-thumb {
+            background-color: #888;
+            border-radius: 4px;
         }
-        .price-list ul li {
-            font-size: 1.2em;
-            margin-bottom: 10px;
+        #content::-webkit-scrollbar-thumb:hover {
+            background-color: #555;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            #content {
+                width: 90%;
+                height: 80%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Po godzinach</h1>
-        <p>
-            Po godzinach to publikacja mająca na celu promocję działalności artystycznej młodych twórców polskiej sceny wizualnej. Jest to cyklicznie wydawana książeczka celebrująca proces kreatywny, zabawę narzędziem i autentyczność.
-        </p>
-        <p>
-            Młodzi twórcy wizualni (ilustratorzy, graficy, malarze, rysownicy, etc.) mają niewiele miejsc na promocję – większość jest zdana na siebie. Małe formy pokazują szczery proces i wrażliwość twórcy. Szkicownik jest najbardziej intymnym miejscem, pełnym tajemnic, nie zawsze dostępnym dla większego grona. Po godzinach udostępnia rąbek tajemnicy i wyjmuje szkice z szuflady, tworząc publikację przypominającą w formie zbiorowy szkicownik ukazujący prawdę, otwierający na błąd, celebrujący go.
-        </p>
-        <p>
-            W pokoleniu setek subkultur, Po godzinach tworzy przestrzeń dla każdej estetyki, wrażliwości i różnych sposobów myślenia. Jedyne aspekty ograniczające proces twórczy to format i aktualizowany co każdą edycję temat. Kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.
-        </p>
 
-        <h2>Informacje:</h2>
-        <p>Data: 13/09/24</p>
-        <p>Drzemka:</p>
-
-        <h2>Cennik:</h2>
-        <div class="price-list">
-            <ul>
-                <li>Wstęp: 10 zł</li>
-                <li>Cena koszuli: 60 zł</li>
-                <li>Cena nadruku: 20 zł</li>
-                <li>Cena zina: 50 zł</li>
-            </ul>
-        </div>
+    <!-- Scrollable text content -->
+    <div id="content">
+        Po godzinach to publikacja mająca na celu promocję działalności artystycznej młodych twórców polskiej sceny wizualnej. Jest to cyklicznie wydawana książeczka celebrująca proces kreatywny, zabawę narzędziem i autentyczność.<br><br>
+        Młodzi twórcy wizualni (ilustratorzy, graficy, malarze, rysownicy, etc.) mają niewiele miejsc na promocję – większość jest zdana na siebie. Małe formy pokazują szczery proces i wrażliwość twórcy. Szkicownik jest najbardziej intymnym miejscem, pełnym tajemnic, nie zawsze dostępnym dla większego grona.<br><br>
+        Po godzinach udostępnia rąbek tajemnicy i wyjmuje szkice z szuflady tworząc publikacje przypominającą w formie zbiorowy szkicownik ukazujący prawdę, otwierający na błąd, celebrujący go.<br><br>
+        W pokoleniu setek subkultur Po godzinach tworzy przestrzeń dla każdej estetyki, wrażliwości i różnych sposobów myślenia.<br><br>
+        Jedyne aspekty ograniczające proces twórczy to format i aktualizowany, co każdą edycję temat. Kryterium spajającym wszystko w całość jest pasja i zabawa z tworzenia.
     </div>
+
+    <!-- 'X' button -->
+    <button class="close-button" onclick="window.location.href='index.html'">X</button>
+
 </body>
 </html>
