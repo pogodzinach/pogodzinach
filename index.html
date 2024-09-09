@@ -19,7 +19,6 @@
         }
 
         canvas {
-            border: 1px solid black;
             touch-action: none; /* Prevent default touch behavior */
             position: fixed;
             top: 0;
@@ -60,6 +59,11 @@
             right: 0;
         }
 
+        #drzemka {
+            bottom: 0;
+            left: 0;
+        }
+
         .button:hover {
             text-decoration: underline;
         }
@@ -71,7 +75,7 @@
             }
         }
 
-        /* On mobile, make the canvas smaller and transparent */
+        /* On mobile, make the canvas smaller, adjust the border, and fix touch offset */
         @media (pointer: coarse) {
             canvas {
                 z-index: 1000; /* Bring canvas above everything on mobile */
@@ -80,6 +84,7 @@
                 top: 10%; /* Center the canvas */
                 left: 10%;
                 background-color: transparent; /* Make canvas transparent */
+                border: 5px solid #d0d0d0; /* Match canvas border with background color */
             }
         }
     </style>
@@ -92,6 +97,7 @@
     <!-- Buttons -->
     <div id="info" class="button">INFO</div>
     <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
+    <div id="drzemka" class="button" onclick="window.location.href='https://www.facebook.com/events/926342952626759'">003 DRZEMKA 13.09 SPATIF</div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
@@ -127,12 +133,12 @@
             }, { passive: false });
         }
 
-        // Function to get touch position on the canvas
+        // Function to get touch position on the canvas (adjusted for offset)
         function getTouchPos(canvas, touchEvent) {
             const rect = canvas.getBoundingClientRect();
             return {
-                x: touchEvent.touches[0].clientX - rect.left,
-                y: touchEvent.touches[0].clientY - rect.top
+                x: (touchEvent.touches[0].clientX - rect.left) * (canvas.width / rect.width),
+                y: (touchEvent.touches[0].clientY - rect.top) * (canvas.height / rect.height)
             };
         }
 
