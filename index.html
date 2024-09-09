@@ -73,7 +73,6 @@
 </head>
 <body>
     <img id="logo" src="pogodzinachlogo.png" alt="Pogodzinach Logo">
-    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawCanvas"></canvas>
 
     <!-- Buttons -->
@@ -92,43 +91,31 @@
 
         resizeCanvas(); // Initial setup
 
-        window.addEventListener('resize', resizeCanvas);
-
-        // Desktop drawing system (mouse-based)
-        if (window.matchMedia("(pointer: fine)").matches) {
-            document.addEventListener('mousemove', (e) => {
-                const cursor = document.getElementById('cursor');
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.strokeStyle = 'black'; // Brush color
-                ctx.lineWidth = 8; // Brush size
-                ctx.lineCap = 'round';
-                ctx.stroke();
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                ctx.beginPath();
-                ctx.moveTo(e.clientX, e.clientY);
-            });
+        // Helper function to get correct touch coordinates relative to canvas
+        function getTouchPos(canvas, touchEvent) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: touchEvent.touches[0].clientX - rect.left,
+                y: touchEvent.touches[0].clientY - rect.top
+            };
         }
 
-        // Mobile drawing system (touch-based)
-        if (window.matchMedia("(pointer: coarse)").matches) {
+        // Mobile Drawing System (for touch devices)
+        function mobileDrawingSystem() {
             let isDrawing = false;
 
             canvas.addEventListener('touchstart', (e) => {
                 isDrawing = true;
-                const touch = e.touches[0];
+                const pos = getTouchPos(canvas, e);
                 ctx.beginPath();
-                ctx.moveTo(touch.clientX, touch.clientY);
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault(); // Prevent scrolling
             });
 
             canvas.addEventListener('touchmove', (e) => {
                 if (isDrawing) {
-                    const touch = e.touches[0];
-                    ctx.lineTo(touch.clientX, touch.clientY);
+                    const pos = getTouchPos(canvas, e);
+                    ctx.lineTo(pos.x, pos.y);
                     ctx.strokeStyle = 'black'; // Brush color
                     ctx.lineWidth = 8; // Brush size
                     ctx.lineCap = 'round';
@@ -140,8 +127,22 @@
             canvas.addEventListener('touchend', () => {
                 isDrawing = false; // Stop drawing when touch ends
             });
+
+            // Prevent touch scrolling during drawing
+            document.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+            }, { passive: false });
         }
 
+        // Only activate the mobile drawing system on touch devices
+        if (window.matchMedia("(pointer: coarse)").matches) {
+            mobileDrawingSystem();
+        }
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
     </script>
 </body>
 </html>
