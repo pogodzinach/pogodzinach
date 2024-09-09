@@ -104,6 +104,15 @@
 
         resizeCanvas(); // Initial setup
 
+        // Helper function to get correct touch coordinates relative to canvas
+        function getTouchPos(canvas, touchEvent) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: touchEvent.touches[0].clientX - rect.left,
+                y: touchEvent.touches[0].clientY - rect.top
+            };
+        }
+
         // Desktop Drawing System (mouse moves continuously draw)
         if (window.matchMedia("(pointer: fine)").matches) {  // Detect desktop
             document.addEventListener('mousemove', (e) => {
@@ -130,21 +139,22 @@
 
             canvas.addEventListener('touchstart', (e) => {
                 isDrawing = true;
-                const touch = e.touches[0]; // Get the first touch
+                const pos = getTouchPos(canvas, e);
                 ctx.beginPath();
-                ctx.moveTo(touch.clientX, touch.clientY);
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault(); // Prevent scrolling
             });
 
             canvas.addEventListener('touchmove', (e) => {
                 if (isDrawing) {
-                    const touch = e.touches[0]; // Get the current touch
-                    ctx.lineTo(touch.clientX, touch.clientY);
+                    const pos = getTouchPos(canvas, e);
+                    ctx.lineTo(pos.x, pos.y);
                     ctx.strokeStyle = 'black'; // Brush color
                     ctx.lineWidth = 8; // Brush size
                     ctx.lineCap = 'round';
                     ctx.stroke();
                 }
-                e.preventDefault(); // Prevent scrolling while drawing
+                e.preventDefault(); // Prevent scrolling
             });
 
             canvas.addEventListener('touchend', () => {
