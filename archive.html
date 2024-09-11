@@ -55,8 +55,10 @@
             height: 600px;
             margin: 20px auto;
             display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+        }
+
+        .page {
+            background-color: #f0f0f0;
         }
 
         #mobile-book-container {
@@ -93,10 +95,6 @@
         #loading-text {
             color: white;
             font-size: 24px;
-        }
-
-        .page-wrapper {
-            background-color: #f0f0f0;
         }
 
         /* Hide cursor on touch devices */
@@ -173,7 +171,6 @@
             
             loadingScreen.style.display = 'flex';
             bookContainer.style.display = 'none';
-            bookContainer.style.opacity = '0';
             mobileBookContainer.style.display = 'none';
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
@@ -257,7 +254,7 @@
                 width: maxWidth * 2,
                 height: maxHeight,
                 autoCenter: true,
-                duration: 1000,
+                duration: 600,
                 acceleration: true,
                 gradients: true,
                 elevation: 50,
@@ -271,11 +268,12 @@
                 }
             });
 
-            // Fade in the book container
+            // Make sure Turn.js is aware of all pages
+            $(bookContainer).turn('peel', 'br');
+            $(bookContainer).turn('page', 1);
+
+            // Display the book container
             bookContainer.style.display = 'block';
-            setTimeout(() => {
-                bookContainer.style.opacity = '1';
-            }, 50);
         }
 
         async function loadMobileBook() {
