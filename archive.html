@@ -53,6 +53,7 @@
             height: 80%;
             position: relative;
             perspective: 1500px;
+            transform-style: preserve-3d;
         }
 
         .page {
@@ -60,11 +61,13 @@
             width: 50%;
             height: 100%;
             top: 0;
+            right: 0;
             background-color: #fff;
             transform-origin: left center;
             transition: transform 0.5s;
             transform-style: preserve-3d;
             cursor: grab;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
 
         .page-content {
@@ -76,10 +79,49 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
+            overflow: hidden;
         }
 
         .page-back {
             transform: rotateY(180deg);
+        }
+
+        .page-curl {
+            position: absolute;
+            width: 0;
+            height: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(
+                to left,
+                rgba(0,0,0,0.15) 0%,
+                rgba(0,0,0,0) 100%
+            );
+            border-radius: 50%;
+            transition: all 0.5s;
+            transform-origin: 100% 100%;
+        }
+
+        .upcoming-page {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 50px;
+            height: 50px;
+            background-color: #f0f0f0;
+            transform: translateZ(-1px);
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .upcoming-content {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            opacity: 0.5;
         }
 
         /* Hide cursor on touch devices */
@@ -143,7 +185,6 @@
             }, { passive: false });
         }
 
-        // Book loading function
         async function loadBook(pdfName) {
             const loadingTask = pdfjsLib.getDocument(pdfName);
             pdfDoc = await loadingTask.promise;
@@ -181,10 +222,37 @@
                 backContent.textContent = `Page ${i}`;
                 page.appendChild(backContent);
 
+                const pageCurl = document.createElement('div');
+                pageCurl.className = 'page-curl';
+                page.appendChild(pageCurl);
+
                 bookContainer.appendChild(page);
 
                 page.addEventListener('mousedown', startDragging);
                 page.addEventListener('touchstart', startDragging);
+            }
+
+            // Add upcoming page preview
+            if (currentPage + 2 <= pageCount) {
+                const upcomingPage = document.createElement('div');
+                upcomingPage.className = 'upcoming-page';
+                const upcomingContent = document.createElement('div');
+                upcomingContent.className = 'upcoming-content';
+                const nextPdfPage = await pdfDoc.getPage(currentPage + 2);
+                const scale = 0.2;
+                const viewport = nextPdfPage.getViewport({ scale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await nextPdfPage.render(renderContext);
+                upcomingContent.style.backgroundImage = `url(${canvas.toDataURL()})`;
+                upcomingPage.appendChild(upcomingContent);
+                bookContainer.appendChild(upcomingPage);
             }
         }
 
@@ -192,13 +260,32 @@
             e.preventDefault();
             const page = e.target.closest('.page');
             const startX = e.clientX || e.touches[0].clientX;
-            const startRotation = page.style.transform ? parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', '')) : 0;
+            const startY = e.clientY || e.touches[0].clientY;
+            const rect = page.getBoundingClientRect();
+            const pageCurl = page.querySelector('.page-curl');
 
             function drag(e) {
                 const currentX = e.clientX || e.touches[0].clientX;
+                const currentY = e.clientY || e.touches[0].clientY;
                 const diffX = currentX - startX;
-                let newRotation = startRotation + diffX / 5;
-                newRotation = Math.max(-180, Math.min(0, newRotation));
+                const diffY = currentY - startY;
+                let newRotation = Math.min(Math.max(diffX / 5, -180), 0);
+
+                // Calculate curl size based on drag distance
+                const curlSize = Math.min(Math.sqrt(diffX * diffX + diffY * diffY), rect.width / 2);
+                pageCurl.style.width = `${curlSize}px`;
+                pageCurl.style.height = `${curlSize}px`;
+
+                // Adjust curl position
+                const curlX = Math.max(rect.width - curlSize, 0);
+                const curlY = Math.max(rect.height - curlSize, 0);
+                pageCurl.style.right = `${curlX}px`;
+                pageCurl.style.bottom = `${curlY}px`;
+
+                // Rotate curl
+                const curlRotation = Math.atan2(diffY, diffX) * (180 / Math.PI);
+                pageCurl.style.transform = `rotate(${curlRotation}deg)`;
+
                 page.style.transform = `rotateY(${newRotation}deg)`;
             }
 
@@ -211,12 +298,16 @@
                 const finalRotation = parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', ''));
                 if (finalRotation < -90) {
                     page.style.transform = 'rotateY(-180deg)';
+                    pageCurl.style.width = '0';
+                    pageCurl.style.height = '0';
                     if (currentPage < pageCount - 1) {
                         currentPage += 2;
                         renderBook();
                     }
                 } else {
                     page.style.transform = 'rotateY(0deg)';
+                    pageCurl.style.width = '0';
+                    pageCurl.style.height = '0';
                 }
             }
 
