@@ -97,6 +97,17 @@
             font-size: 24px;
         }
 
+        #close-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            color: black;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
         /* Hide cursor on touch devices */
         @media (pointer: coarse) {
             #cursor {
@@ -116,6 +127,8 @@
 <body>
     <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawingCanvas"></canvas>
+
+    <div id="close-button" onclick="window.location.href='index.html'">X</div>
 
     <div class="button" onclick="loadBook('001.pdf')">001</div>
     <div class="button" onclick="loadBook('002.pdf')">002</div>
@@ -166,6 +179,7 @@
         }
 
         async function loadBook(pdfName) {
+            console.log('Loading book:', pdfName);
             if (currentPDF === pdfName) return;
             currentPDF = pdfName;
             
@@ -175,26 +189,40 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            const loadingTask = pdfjsLib.getDocument(pdfName);
-            pdfDoc = await loadingTask.promise;
-            pageCount = pdfDoc.numPages;
+            try {
+                console.log('Fetching PDF...');
+                const loadingTask = pdfjsLib.getDocument(pdfName);
+                pdfDoc = await loadingTask.promise;
+                console.log('PDF loaded successfully');
+                pageCount = pdfDoc.numPages;
+                console.log('Number of pages:', pageCount);
 
-            if (isMobile) {
-                await loadMobileBook();
-            } else {
-                await loadDesktopBook();
+                if (isMobile) {
+                    console.log('Loading mobile book...');
+                    await loadMobileBook();
+                } else {
+                    console.log('Loading desktop book...');
+                    await loadDesktopBook();
+                }
+
+                console.log('Book loaded successfully');
+            } catch (error) {
+                console.error('Error loading book:', error);
+                loadingScreen.innerHTML = 'Error loading book. Please try again.';
+            } finally {
+                loadingScreen.style.display = 'none';
             }
-
-            loadingScreen.style.display = 'none';
         }
 
         async function loadDesktopBook() {
+            console.log('Starting desktop book loading...');
             const pages = [];
             let maxWidth = 0;
             let maxHeight = 0;
 
             // Pre-render all pages
             for (let i = 1; i <= pageCount; i++) {
+                console.log(`Rendering page ${i}...`);
                 const pdfPage = await pdfDoc.getPage(i);
                 const scale = 1.5;
                 const viewport = pdfPage.getViewport({ scale });
@@ -213,6 +241,8 @@
 
                 pages.push(canvas);
             }
+
+            console.log('All pages rendered');
 
             // Clear the book container
             bookContainer.innerHTML = '';
@@ -249,6 +279,7 @@
             bookContainer.style.width = `${maxWidth * 2}px`;
             bookContainer.style.height = `${maxHeight}px`;
 
+            console.log('Initializing Turn.js...');
             // Initialize Turn.js
             $(bookContainer).turn({
                 width: maxWidth * 2,
@@ -272,12 +303,17 @@
             $(bookContainer).turn('peel', 'br');
             $(bookContainer).turn('page', 1);
 
+            console.log('Turn.js initialized');
+
             // Display the book container
             bookContainer.style.display = 'block';
+            console.log('Book container displayed');
         }
 
         async function loadMobileBook() {
+            console.log('Starting mobile book loading...');
             for (let i = 1; i <= pageCount; i++) {
+                console.log(`Rendering mobile page ${i}...`);
                 const page = document.createElement('div');
                 page.className = 'mobile-page';
 
@@ -301,6 +337,7 @@
             }
 
             mobileBookContainer.style.display = 'block';
+            console.log('Mobile book loaded and displayed');
         }
 
         // Drawing functionality
