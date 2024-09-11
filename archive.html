@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PO GODZINACH ZIN - Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -51,9 +49,37 @@
         }
 
         #book-container {
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
+            width: 80%;
+            height: 80%;
+            position: relative;
+            perspective: 1500px;
+        }
+
+        .page {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            background-color: #fff;
+            transform-origin: left center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            cursor: grab;
+        }
+
+        .page-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .page-back {
+            transform: rotateY(180deg);
         }
 
         /* Hide cursor on touch devices */
@@ -64,10 +90,10 @@
         }
 
         /* On mobile, adjust the book container */
-        @media (max-width: 800px) {
+        @media (pointer: coarse) {
             #book-container {
                 width: 90%;
-                height: 70vh;
+                height: 70%;
             }
         }
     </style>
@@ -82,12 +108,12 @@
 
     <div id="book-container"></div>
 
-    <script src="turn.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
         const bookContainer = document.getElementById('book-container');
-        let currentPDF = null;
+        let currentPage = 0;
         let pdfDoc = null;
         let pageCount = 0;
 
@@ -117,22 +143,24 @@
             }, { passive: false });
         }
 
+        // Book loading function
         async function loadBook(pdfName) {
-            if (currentPDF === pdfName) return;
-            currentPDF = pdfName;
-            
             const loadingTask = pdfjsLib.getDocument(pdfName);
             pdfDoc = await loadingTask.promise;
             pageCount = pdfDoc.numPages;
+            currentPage = 1;
+            renderBook();
+        }
 
+        async function renderBook() {
             bookContainer.innerHTML = '';
-            for (let i = 1; i <= pageCount; i++) {
+            for (let i = currentPage; i < currentPage + 2 && i <= pageCount; i++) {
                 const page = document.createElement('div');
                 page.className = 'page';
-                page.style.width = '100%';
-                page.style.height = '100%';
-                bookContainer.appendChild(page);
+                page.style.left = i % 2 === 1 ? '0' : '50%';
 
+                const content = document.createElement('div');
+                content.className = 'page-content';
                 const pdfPage = await pdfDoc.getPage(i);
                 const scale = 1.5;
                 const viewport = pdfPage.getViewport({ scale });
@@ -145,25 +173,57 @@
                     viewport: viewport
                 };
                 await pdfPage.render(renderContext);
-                page.appendChild(canvas);
+                content.appendChild(canvas);
+                page.appendChild(content);
+
+                const backContent = document.createElement('div');
+                backContent.className = 'page-content page-back';
+                backContent.textContent = `Page ${i}`;
+                page.appendChild(backContent);
+
+                bookContainer.appendChild(page);
+
+                page.addEventListener('mousedown', startDragging);
+                page.addEventListener('touchstart', startDragging);
+            }
+        }
+
+        function startDragging(e) {
+            e.preventDefault();
+            const page = e.target.closest('.page');
+            const startX = e.clientX || e.touches[0].clientX;
+            const startRotation = page.style.transform ? parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', '')) : 0;
+
+            function drag(e) {
+                const currentX = e.clientX || e.touches[0].clientX;
+                const diffX = currentX - startX;
+                let newRotation = startRotation + diffX / 5;
+                newRotation = Math.max(-180, Math.min(0, newRotation));
+                page.style.transform = `rotateY(${newRotation}deg)`;
             }
 
-            $('#book-container').turn({
-                width: 800,
-                height: 600,
-                autoCenter: true,
-                duration: 1000,
-                acceleration: true,
-                gradients: true,
-                elevation: 50,
-                when: {
-                    turning: function(event, page, view) {
-                        if (page === 1) {
-                            event.preventDefault();
-                        }
+            function stopDragging() {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDragging);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', stopDragging);
+
+                const finalRotation = parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', ''));
+                if (finalRotation < -90) {
+                    page.style.transform = 'rotateY(-180deg)';
+                    if (currentPage < pageCount - 1) {
+                        currentPage += 2;
+                        renderBook();
                     }
+                } else {
+                    page.style.transform = 'rotateY(0deg)';
                 }
-            });
+            }
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', stopDragging);
         }
 
         // Drawing functionality (same as before)
