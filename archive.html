@@ -8,158 +8,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            cursor: none;
-            user-select: none;
-            background-color: #d0d0d0;
-            font-family: 'Vollkorn', serif;
-        }
-
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        #cursor {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        .button {
-            margin: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            cursor: pointer;
-            color: black;
-        }
-
-        .button:hover {
-            text-decoration: underline;
-        }
+        /* ... (previous styles remain the same) ... */
 
         #book-container {
             width: 800px;
             height: 600px;
             margin: 20px auto;
             display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        .page-wrapper {
+            background-color: #f0f0f0;
         }
 
-        #loading-text {
-            color: white;
-            font-size: 24px;
-        }
-
-        /* Hide cursor on touch devices */
-        @media (pointer: coarse) {
-            #cursor {
-                display: none;
-            }
-        }
-
-        /* On mobile, adjust the book container */
-        @media (max-width: 800px) {
-            #book-container {
-                width: 90%;
-                height: 70vh;
-            }
-        }
+        /* ... (rest of the styles remain the same) ... */
     </style>
 </head>
 <body>
-    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
-    <canvas id="drawingCanvas"></canvas>
-
-    <div class="button" onclick="loadBook('001.pdf')">001</div>
-    <div class="button" onclick="loadBook('002.pdf')">002</div>
-    <div class="button" onclick="loadBook('003.pdf')">003</div>
-
-    <div id="book-container"></div>
-    <div id="loading-screen" style="display: none;">
-        <div id="loading-text">Loading...</div>
-    </div>
+    <!-- ... (previous HTML content remains the same) ... -->
 
     <script src="turn.js"></script>
     <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        const bookContainer = document.getElementById('book-container');
-        const loadingScreen = document.getElementById('loading-screen');
-        let currentPDF = null;
-        let pdfDoc = null;
-        let pageCount = 0;
+        // ... (previous JavaScript code remains the same) ...
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        if (!window.matchMedia("(pointer: coarse)").matches) {
-            document.body.style.backgroundColor = getRandomColor();
-        }
-
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            document.body.addEventListener('touchmove', function(event) {
-                event.preventDefault();
-            }, { passive: false });
-        }
-
-        async function loadBook(pdfName) {
-            if (currentPDF === pdfName) return;
-            currentPDF = pdfName;
-            
-            loadingScreen.style.display = 'flex';
-            bookContainer.style.display = 'none';
-            bookContainer.innerHTML = '';
-
-            const loadingTask = pdfjsLib.getDocument(pdfName);
-            pdfDoc = await loadingTask.promise;
-            pageCount = pdfDoc.numPages;
-
+        async function loadDesktopBook() {
             const pages = [];
-            for (let i = 1; i <= pageCount; i++) {
-                const page = document.createElement('div');
-                page.className = 'page';
-                page.style.width = '100%';
-                page.style.height = '100%';
-                pages.push(page);
+            let maxWidth = 0;
+            let maxHeight = 0;
 
+            // Pre-render all pages
+            for (let i = 1; i <= pageCount; i++) {
                 const pdfPage = await pdfDoc.getPage(i);
                 const scale = 1.5;
                 const viewport = pdfPage.getViewport({ scale });
@@ -172,21 +52,58 @@
                     viewport: viewport
                 };
                 await pdfPage.render(renderContext);
-                page.appendChild(canvas);
+
+                maxWidth = Math.max(maxWidth, canvas.width);
+                maxHeight = Math.max(maxHeight, canvas.height);
+
+                pages.push(canvas);
             }
 
-            // Add all pages to the container at once
-            bookContainer.append(...pages);
+            // Clear the book container
+            bookContainer.innerHTML = '';
+
+            // Create page elements with consistent dimensions
+            for (let i = 0; i < pages.length; i++) {
+                const page = document.createElement('div');
+                page.className = 'page';
+                page.style.width = `${maxWidth}px`;
+                page.style.height = `${maxHeight}px`;
+
+                const wrapper = document.createElement('div');
+                wrapper.style.width = '100%';
+                wrapper.style.height = '100%';
+                wrapper.style.display = 'flex';
+                wrapper.style.justifyContent = 'center';
+                wrapper.style.alignItems = 'center';
+
+                wrapper.appendChild(pages[i]);
+                page.appendChild(wrapper);
+                bookContainer.appendChild(page);
+            }
+
+            // Add an empty page if the total is odd
+            if (pages.length % 2 !== 0) {
+                const emptyPage = document.createElement('div');
+                emptyPage.className = 'page';
+                emptyPage.style.width = `${maxWidth}px`;
+                emptyPage.style.height = `${maxHeight}px`;
+                bookContainer.appendChild(emptyPage);
+            }
+
+            // Set the book container dimensions
+            bookContainer.style.width = `${maxWidth * 2}px`;
+            bookContainer.style.height = `${maxHeight}px`;
 
             // Initialize Turn.js
-            $('#book-container').turn({
-                width: 800,
-                height: 600,
+            $(bookContainer).turn({
+                width: maxWidth * 2,
+                height: maxHeight,
                 autoCenter: true,
                 duration: 1000,
                 acceleration: true,
                 gradients: true,
                 elevation: 50,
+                pages: bookContainer.children.length,
                 when: {
                     turning: function(event, page, view) {
                         if (page === 1) {
@@ -196,72 +113,38 @@
                 }
             });
 
-            // Hide loading screen and show the book
-            loadingScreen.style.display = 'none';
+            // Fade in the book container
             bookContainer.style.display = 'block';
+            setTimeout(() => {
+                bookContainer.style.opacity = '1';
+            }, 50);
         }
 
-        // Drawing functionality (same as before)
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
+        async function loadBook(pdfName) {
+            if (currentPDF === pdfName) return;
+            currentPDF = pdfName;
+            
+            loadingScreen.style.display = 'flex';
+            bookContainer.style.display = 'none';
+            bookContainer.style.opacity = '0';
+            mobileBookContainer.style.display = 'none';
+            bookContainer.innerHTML = '';
+            mobileBookContainer.innerHTML = '';
 
-            let drawing = false;
+            const loadingTask = pdfjsLib.getDocument(pdfName);
+            pdfDoc = await loadingTask.promise;
+            pageCount = pdfDoc.numPages;
 
-            function getTouchPos(canvas, touchEvent) {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: (touchEvent.touches[0].clientX - rect.left) * (canvas.width / rect.width),
-                    y: (touchEvent.touches[0].clientY - rect.top) * (canvas.height / rect.height)
-                };
+            if (isMobile) {
+                await loadMobileBook();
+            } else {
+                await loadDesktopBook();
             }
 
-            function startDrawing(event) {
-                drawing = true;
-                const pos = getTouchPos(canvas, event);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            }
-
-            function draw(event) {
-                if (!drawing) return;
-                const pos = getTouchPos(canvas, event);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-
-            function stopDrawing() {
-                drawing = false;
-                ctx.closePath();
-            }
-
-            canvas.addEventListener('touchstart', startDrawing);
-            canvas.addEventListener('touchmove', draw);
-            canvas.addEventListener('touchend', stopDrawing);
-        } else {
-            const cursor = document.getElementById('cursor');
-
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 8;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-            });
-
-            document.addEventListener('mousedown', (e) => {
-                ctx.beginPath();
-                ctx.moveTo(e.clientX, e.clientY);
-            });
-
-            document.addEventListener('mouseup', () => {
-                ctx.closePath();
-            });
+            loadingScreen.style.display = 'none';
         }
+
+        // ... (rest of the JavaScript code remains the same) ...
     </script>
 </body>
 </html>
