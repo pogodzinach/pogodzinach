@@ -48,10 +48,38 @@
             text-decoration: underline;
         }
 
-        #pdf-viewer {
+        #book-container {
             width: 80%;
             height: 80%;
-            border: none;
+            position: relative;
+            perspective: 1500px;
+        }
+
+        .page {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            background-color: #fff;
+            transform-origin: left center;
+            transition: transform 0.5s;
+            transform-style: preserve-3d;
+            cursor: grab;
+        }
+
+        .page-content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .page-back {
+            transform: rotateY(180deg);
         }
 
         /* Hide cursor on touch devices */
@@ -61,15 +89,11 @@
             }
         }
 
-        /* On mobile, make the canvas smaller and adjust the border */
+        /* On mobile, adjust the book container */
         @media (pointer: coarse) {
-            canvas {
-                width: 80%;
-                height: 80%;
-                top: 10%;
-                left: 10%;
-                background-color: transparent;
-                border: 5px solid #d0d0d0;
+            #book-container {
+                width: 90%;
+                height: 70%;
             }
         }
     </style>
@@ -78,16 +102,20 @@
     <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawingCanvas"></canvas>
 
-    <div class="button" onclick="loadPDF('001.pdf')">001</div>
-    <div class="button" onclick="loadPDF('002.pdf')">002</div>
-    <div class="button" onclick="loadPDF('003.pdf')">003</div>
+    <div class="button" onclick="loadBook('001.pdf')">001</div>
+    <div class="button" onclick="loadBook('002.pdf')">002</div>
+    <div class="button" onclick="loadBook('003.pdf')">003</div>
 
-    <iframe id="pdf-viewer" src=""></iframe>
+    <div id="book-container"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+        const bookContainer = document.getElementById('book-container');
+        let currentPage = 0;
+        let pdfDoc = null;
+        let pageCount = 0;
 
         function getRandomColor() {
             const letters = '0123456789ABCDEF';
@@ -115,13 +143,90 @@
             }, { passive: false });
         }
 
-        // PDF loading function
-        function loadPDF(pdfName) {
-            const viewer = document.getElementById('pdf-viewer');
-            viewer.src = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${pdfName}`;
+        // Book loading function
+        async function loadBook(pdfName) {
+            const loadingTask = pdfjsLib.getDocument(pdfName);
+            pdfDoc = await loadingTask.promise;
+            pageCount = pdfDoc.numPages;
+            currentPage = 1;
+            renderBook();
         }
 
-        // Drawing functionality (same as main page)
+        async function renderBook() {
+            bookContainer.innerHTML = '';
+            for (let i = currentPage; i < currentPage + 2 && i <= pageCount; i++) {
+                const page = document.createElement('div');
+                page.className = 'page';
+                page.style.left = i % 2 === 1 ? '0' : '50%';
+
+                const content = document.createElement('div');
+                content.className = 'page-content';
+                const pdfPage = await pdfDoc.getPage(i);
+                const scale = 1.5;
+                const viewport = pdfPage.getViewport({ scale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                const renderContext = {
+                    canvasContext: context,
+                    viewport: viewport
+                };
+                await pdfPage.render(renderContext);
+                content.appendChild(canvas);
+                page.appendChild(content);
+
+                const backContent = document.createElement('div');
+                backContent.className = 'page-content page-back';
+                backContent.textContent = `Page ${i}`;
+                page.appendChild(backContent);
+
+                bookContainer.appendChild(page);
+
+                page.addEventListener('mousedown', startDragging);
+                page.addEventListener('touchstart', startDragging);
+            }
+        }
+
+        function startDragging(e) {
+            e.preventDefault();
+            const page = e.target.closest('.page');
+            const startX = e.clientX || e.touches[0].clientX;
+            const startRotation = page.style.transform ? parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', '')) : 0;
+
+            function drag(e) {
+                const currentX = e.clientX || e.touches[0].clientX;
+                const diffX = currentX - startX;
+                let newRotation = startRotation + diffX / 5;
+                newRotation = Math.max(-180, Math.min(0, newRotation));
+                page.style.transform = `rotateY(${newRotation}deg)`;
+            }
+
+            function stopDragging() {
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', stopDragging);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', stopDragging);
+
+                const finalRotation = parseFloat(page.style.transform.replace('rotateY(', '').replace('deg)', ''));
+                if (finalRotation < -90) {
+                    page.style.transform = 'rotateY(-180deg)';
+                    if (currentPage < pageCount - 1) {
+                        currentPage += 2;
+                        renderBook();
+                    }
+                } else {
+                    page.style.transform = 'rotateY(0deg)';
+                }
+            }
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', stopDragging);
+            document.addEventListener('touchmove', drag);
+            document.addEventListener('touchend', stopDragging);
+        }
+
+        // Drawing functionality (same as before)
         if (window.matchMedia("(pointer: coarse)").matches) {
             ctx.lineWidth = 10;
             ctx.lineCap = 'round';
