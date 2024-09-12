@@ -123,8 +123,9 @@
     <canvas id="drawingCanvas"></canvas>
 
     <div class="button-container">
-        <div class="button" onclick="selectBook('001')">001</div>
-        <div class="button" onclick="selectBook('002')">002</div>
+        <div class="button" onclick="loadBook('001')">001</div>
+        <div class="button" onclick="loadBook('002')">002</div>
+        
     </div>
 
     <div id="book-container"></div>
@@ -164,15 +165,8 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
-        function selectBook(bookNumber) {
-            if (currentBook === bookNumber) {
-                location.reload(); // Refresh the page if the same book is selected
-                return;
-            }
-            loadBook(bookNumber);
-        }
-
         async function loadBook(bookNumber) {
+            if (currentBook === bookNumber) return;
             currentBook = bookNumber;
             
             loadingScreen.style.display = 'flex';
@@ -181,7 +175,8 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            pageCount = 72; // Assuming each book has 72 pages
+            // Determine the number of pages (you may need to adjust this based on your actual file structure)
+            pageCount = 72; // Example: assuming each book has 20 pages
 
             if (isMobile) {
                 await loadMobileBook(bookNumber);
@@ -211,12 +206,6 @@
 
             bookContainer.append(...pages);
 
-            // Destroy previous Turn.js instance if it exists
-            if ($('#book-container').turn('is')) {
-                $('#book-container').turn('destroy');
-            }
-
-            // Initialize new Turn.js instance
             $('#book-container').turn({
                 width: 800,
                 height: 550,
