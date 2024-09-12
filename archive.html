@@ -6,6 +6,7 @@
     <title>PO GODZINACH ZIN - Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -133,7 +134,6 @@
         <div id="loading-text">Loading...</div>
     </div>
 
-    <script src="turn.js"></script>
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
@@ -165,7 +165,11 @@
         }
 
         async function loadBook(bookNumber) {
-            if (currentBook === bookNumber) return;
+            console.log('Loading book:', bookNumber);
+            if (currentBook === bookNumber) {
+                console.log('Book already loaded');
+                return;
+            }
             
             loadingScreen.style.display = 'flex';
             bookContainer.style.display = 'none';
@@ -173,7 +177,7 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            // Destroy the previous Turn.js instance if it exists
+            console.log('Destroying previous Turn.js instance');
             if ($('#book-container').turn('is')) {
                 $('#book-container').turn('destroy');
             }
@@ -182,19 +186,23 @@
             pageCount = 72; // Assuming each book has 72 pages
 
             try {
+                console.log('Starting book load process');
                 if (isMobile) {
                     await loadMobileBook(bookNumber);
                 } else {
                     await loadDesktopBook(bookNumber);
                 }
+                console.log('Book loaded successfully');
             } catch (error) {
                 console.error('Error loading book:', error);
+                alert('Failed to load the book. Please try again.');
             } finally {
                 loadingScreen.style.display = 'none';
             }
         }
 
         async function loadDesktopBook(bookNumber) {
+            console.log('Loading desktop book');
             const pages = [];
             for (let i = 1; i <= pageCount; i++) {
                 const page = document.createElement('div');
@@ -213,6 +221,7 @@
 
             bookContainer.append(...pages);
 
+            console.log('Initializing Turn.js');
             $('#book-container').turn({
                 width: 800,
                 height: 550,
@@ -232,9 +241,11 @@
             });
 
             bookContainer.style.display = 'block';
+            console.log('Desktop book loaded');
         }
 
         async function loadMobileBook(bookNumber) {
+            console.log('Loading mobile book');
             for (let i = 1; i <= pageCount; i++) {
                 const page = document.createElement('div');
                 page.className = 'mobile-page';
@@ -248,6 +259,7 @@
             }
 
             mobileBookContainer.style.display = 'block';
+            console.log('Mobile book loaded');
         }
 
         // Drawing functionality
