@@ -123,9 +123,8 @@
     <canvas id="drawingCanvas"></canvas>
 
     <div class="button-container">
-        <div class="button" onclick="loadBook('001')">001</div>
-        <div class="button" onclick="loadBook('002')">002</div>
-        
+        <div class="button" onclick="selectBook('001')">001</div>
+        <div class="button" onclick="selectBook('002')">002</div>
     </div>
 
     <div id="book-container"></div>
@@ -165,8 +164,28 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
+        // Function to handle book selection and page refresh
+        function selectBook(bookNumber) {
+            if (currentBook !== bookNumber) {
+                window.location.href = window.location.pathname + '?book=' + bookNumber;
+            }
+        }
+
+        // Function to get the selected book from URL parameters
+        function getSelectedBook() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('book');
+        }
+
+        // Load the book based on URL parameter
+        window.onload = function() {
+            const selectedBook = getSelectedBook();
+            if (selectedBook) {
+                loadBook(selectedBook);
+            }
+        };
+
         async function loadBook(bookNumber) {
-            if (currentBook === bookNumber) return;
             currentBook = bookNumber;
             
             loadingScreen.style.display = 'flex';
@@ -175,8 +194,7 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            // Determine the number of pages (you may need to adjust this based on your actual file structure)
-            pageCount = 72; // Example: assuming each book has 20 pages
+            pageCount = 72; // Assuming each book has 72 pages
 
             if (isMobile) {
                 await loadMobileBook(bookNumber);
