@@ -10,16 +10,13 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
-            cursor: none;
-            user-select: none;
             background-color: #d0d0d0;
             font-family: 'Vollkorn', serif;
+            overflow-x: hidden;
         }
 
         canvas {
@@ -29,6 +26,7 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            pointer-events: none;
         }
 
         #cursor {
@@ -37,8 +35,15 @@
             z-index: 9999;
         }
 
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
         .button {
-            margin: 20px;
+            margin: 10px;
             font-size: 32px;
             font-weight: bold;
             cursor: pointer;
@@ -58,7 +63,7 @@
 
         #mobile-book-container {
             width: 100%;
-            height: 80vh;
+            max-width: 800px;
             display: none;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -105,6 +110,11 @@
                 font-size: 24px;
                 margin: 10px;
             }
+            
+            #book-container {
+                width: 100%;
+                height: auto;
+            }
         }
     </style>
 </head>
@@ -112,9 +122,11 @@
     <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawingCanvas"></canvas>
 
-    <div class="button" onclick="loadBook('001')">001</div>
-    <div class="button" onclick="loadBook('002')">002</div>
-    <div class="button" onclick="loadBook('003')">003</div>
+    <div class="button-container">
+        <div class="button" onclick="loadBook('001')">001</div>
+        <div class="button" onclick="loadBook('002')">002</div>
+        <div class="button" onclick="loadBook('003')">003</div>
+    </div>
 
     <div id="book-container"></div>
     <div id="mobile-book-container"></div>
@@ -151,12 +163,6 @@
 
         if (!window.matchMedia("(pointer: coarse)").matches) {
             document.body.style.backgroundColor = getRandomColor();
-        }
-
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            document.body.addEventListener('touchmove', function(event) {
-                event.preventDefault();
-            }, { passive: false });
         }
 
         async function loadBook(bookNumber) {
