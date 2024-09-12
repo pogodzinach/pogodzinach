@@ -10,31 +10,20 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            overflow: hidden;
-            cursor: none;
-            user-select: none;
             background-color: #d0d0d0;
             font-family: 'Vollkorn', serif;
+            overflow-x: hidden;
         }
 
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-
-        #cursor {
-            position: fixed;
-            pointer-events: none;
-            z-index: 9999;
+        .book-container {
+            width: 4016px; /* 2 * 2008px */
+            height: 2717px;
+            margin: 20px auto;
+            overflow: hidden;
         }
 
         .button {
@@ -47,31 +36,6 @@
 
         .button:hover {
             text-decoration: underline;
-        }
-
-        #book-container {
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            display: none;
-        }
-
-        #mobile-book-container {
-            width: 100%;
-            height: 80vh;
-            display: none;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .mobile-page {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .mobile-page img {
-            width: 100%;
-            height: auto;
         }
 
         #loading-screen {
@@ -92,102 +56,52 @@
             font-size: 24px;
         }
 
-        /* Hide cursor on touch devices */
-        @media (pointer: coarse) {
-            #cursor {
-                display: none;
-            }
-        }
-
         /* Mobile styles */
-        @media (max-width: 800px) {
-            .button {
-                font-size: 24px;
-                margin: 10px;
+        @media (max-width: 4016px) {
+            .book-container {
+                width: 100%;
+                height: auto;
             }
         }
     </style>
 </head>
 <body>
-    <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
-    <canvas id="drawingCanvas"></canvas>
+    <div class="button" onclick="loadAllBooks()">Load All Books</div>
 
-    <div class="button" onclick="loadBook('001')">001</div>
-    <div class="button" onclick="loadBook('002')">002</div>
-    <div class="button" onclick="loadBook('003')">003</div>
+    <div id="books-wrapper"></div>
 
-    <div id="book-container"></div>
-    <div id="mobile-book-container"></div>
     <div id="loading-screen" style="display: none;">
         <div id="loading-text">Loading...</div>
     </div>
 
     <script src="turn.js"></script>
     <script>
-        const canvas = document.getElementById('drawingCanvas');
-        const ctx = canvas.getContext('2d');
-        const bookContainer = document.getElementById('book-container');
-        const mobileBookContainer = document.getElementById('mobile-book-container');
+        const booksWrapper = document.getElementById('books-wrapper');
         const loadingScreen = document.getElementById('loading-screen');
-        let currentBook = null;
-        let pageCount = 0;
-        const isMobile = window.innerWidth <= 800;
+        const bookNumbers = ['001', '002', '003']; // Add or remove book numbers as needed
+        let pageCount = 20; // Adjust this based on your actual page count
 
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        if (!window.matchMedia("(pointer: coarse)").matches) {
-            document.body.style.backgroundColor = getRandomColor();
-        }
-
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            document.body.addEventListener('touchmove', function(event) {
-                event.preventDefault();
-            }, { passive: false });
-        }
-
-        async function loadBook(bookNumber) {
-            if (currentBook === bookNumber) return;
-            currentBook = bookNumber;
-            
+        async function loadAllBooks() {
             loadingScreen.style.display = 'flex';
-            bookContainer.style.display = 'none';
-            mobileBookContainer.style.display = 'none';
-            bookContainer.innerHTML = '';
-            mobileBookContainer.innerHTML = '';
+            booksWrapper.innerHTML = '';
 
-            // Determine the number of pages (you may need to adjust this based on your actual file structure)
-            pageCount = 20; // Example: assuming each book has 20 pages
-
-            if (isMobile) {
-                await loadMobileBook(bookNumber);
-            } else {
-                await loadDesktopBook(bookNumber);
+            for (const bookNumber of bookNumbers) {
+                await loadBook(bookNumber);
             }
 
             loadingScreen.style.display = 'none';
         }
 
-        async function loadDesktopBook(bookNumber) {
+        async function loadBook(bookNumber) {
+            const bookContainer = document.createElement('div');
+            bookContainer.className = 'book-container';
+            bookContainer.id = `book-${bookNumber}`;
+            booksWrapper.appendChild(bookContainer);
+
             const pages = [];
             for (let i = 1; i <= pageCount; i++) {
                 const page = document.createElement('div');
                 page.className = 'page';
-                page.style.width = '100%';
-                page.style.height = '100%';
                 pages.push(page);
 
                 const img = document.createElement('img');
@@ -200,9 +114,9 @@
 
             bookContainer.append(...pages);
 
-            $('#book-container').turn({
-                width: 800,
-                height: 600,
+            $(`#book-${bookNumber}`).turn({
+                width: 4016,
+                height: 2717,
                 autoCenter: true,
                 duration: 1000,
                 acceleration: true,
@@ -216,87 +130,28 @@
                     }
                 }
             });
-
-            bookContainer.style.display = 'block';
         }
 
-        async function loadMobileBook(bookNumber) {
-            for (let i = 1; i <= pageCount; i++) {
-                const page = document.createElement('div');
-                page.className = 'mobile-page';
-
-                const img = document.createElement('img');
-                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
-                img.style.width = '100%';
-                img.style.height = 'auto';
-                page.appendChild(img);
-                mobileBookContainer.appendChild(page);
-            }
-
-            mobileBookContainer.style.display = 'block';
-        }
-
-        // Drawing functionality
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
-
-            let drawing = false;
-
-            function getTouchPos(canvas, touchEvent) {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: (touchEvent.touches[0].clientX - rect.left) * (canvas.width / rect.width),
-                    y: (touchEvent.touches[0].clientY - rect.top) * (canvas.height / rect.height)
-                };
-            }
-
-            function startDrawing(event) {
-                drawing = true;
-                const pos = getTouchPos(canvas, event);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            }
-
-            function draw(event) {
-                if (!drawing) return;
-                const pos = getTouchPos(canvas, event);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-
-            function stopDrawing() {
-                drawing = false;
-                ctx.closePath();
-            }
-
-            canvas.addEventListener('touchstart', startDrawing);
-            canvas.addEventListener('touchmove', draw);
-            canvas.addEventListener('touchend', stopDrawing);
-        } else {
-            const cursor = document.getElementById('cursor');
-
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 8;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-            });
-
-            document.addEventListener('mousedown', (e) => {
-                ctx.beginPath();
-                ctx.moveTo(e.clientX, e.clientY);
-            });
-
-            document.addEventListener('mouseup', () => {
-                ctx.closePath();
+        // Responsive adjustments
+        function adjustBookSize() {
+            const windowWidth = window.innerWidth;
+            const bookContainers = document.querySelectorAll('.book-container');
+            
+            bookContainers.forEach(container => {
+                if (windowWidth < 4016) {
+                    const scale = windowWidth / 4016;
+                    container.style.transform = `scale(${scale})`;
+                    container.style.transformOrigin = 'top left';
+                    container.style.height = `${2717 * scale}px`;
+                } else {
+                    container.style.transform = '';
+                    container.style.height = '2717px';
+                }
             });
         }
+
+        window.addEventListener('resize', adjustBookSize);
+        window.addEventListener('load', adjustBookSize);
     </script>
 </body>
 </html>
