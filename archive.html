@@ -6,7 +6,6 @@
     <title>PO GODZINACH ZIN - Archive</title>
     <link href="https://fonts.googleapis.com/css2?family=Vollkorn:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -59,6 +58,9 @@
 
         .page {
             background-color: #f0f0f0;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
         }
 
         #mobile-book-container {
@@ -130,9 +132,9 @@
 
     <div id="close-button" onclick="window.location.href='index.html'">X</div>
 
-    <div class="button" onclick="loadBook('001.pdf')">001</div>
-    <div class="button" onclick="loadBook('002.pdf')">002</div>
-    <div class="button" onclick="loadBook('003.pdf')">003</div>
+    <div class="button" onclick="loadBook('001')">001</div>
+    <div class="button" onclick="loadBook('002')">002</div>
+    <div class="button" onclick="loadBook('003')">003</div>
 
     <div id="book-container"></div>
     <div id="mobile-book-container"></div>
@@ -147,8 +149,7 @@
         const bookContainer = document.getElementById('book-container');
         const mobileBookContainer = document.getElementById('mobile-book-container');
         const loadingScreen = document.getElementById('loading-screen');
-        let currentPDF = null;
-        let pdfDoc = null;
+        let currentBook = null;
         let pageCount = 0;
         const isMobile = window.innerWidth <= 800;
 
@@ -178,10 +179,10 @@
             }, { passive: false });
         }
 
-        async function loadBook(pdfName) {
-            console.log('Loading book:', pdfName);
-            if (currentPDF === pdfName) return;
-            currentPDF = pdfName;
+        async function loadBook(bookNumber) {
+            console.log('Loading book:', bookNumber);
+            if (currentBook === bookNumber) return;
+            currentBook = bookNumber;
             
             loadingScreen.style.display = 'flex';
             bookContainer.style.display = 'none';
@@ -190,19 +191,16 @@
             mobileBookContainer.innerHTML = '';
 
             try {
-                console.log('Fetching PDF...');
-                const loadingTask = pdfjsLib.getDocument(pdfName);
-                pdfDoc = await loadingTask.promise;
-                console.log('PDF loaded successfully');
-                pageCount = pdfDoc.numPages;
+                console.log('Fetching book pages...');
+                pageCount = await getPageCount(bookNumber);
                 console.log('Number of pages:', pageCount);
 
                 if (isMobile) {
                     console.log('Loading mobile book...');
-                    await loadMobileBook();
+                    await loadMobileBook(bookNumber);
                 } else {
                     console.log('Loading desktop book...');
-                    await loadDesktopBook();
+                    await loadDesktopBook(bookNumber);
                 }
 
                 console.log('Book loaded successfully');
@@ -214,60 +212,48 @@
             }
         }
 
-        async function loadDesktopBook() {
+        async function getPageCount(bookNumber) {
+            // This function should determine the number of pages for the given book
+            // You might want to implement this based on your specific setup
+            // For now, we'll return a fixed number as an example
+            return 10; // Replace with actual logic to determine page count
+        }
+
+        async function loadDesktopBook(bookNumber) {
             console.log('Starting desktop book loading...');
-            const pages = [];
             let maxWidth = 0;
             let maxHeight = 0;
 
-            // Pre-render all pages
-            for (let i = 1; i <= pageCount; i++) {
-                console.log(`Rendering page ${i}...`);
-                const pdfPage = await pdfDoc.getPage(i);
-                const scale = 1.5;
-                const viewport = pdfPage.getViewport({ scale });
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                await pdfPage.render(renderContext);
+            // Pre-load all images to get dimensions
+            const images = await Promise.all(Array.from({length: pageCount}, (_, i) => {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        maxWidth = Math.max(maxWidth, img.width);
+                        maxHeight = Math.max(maxHeight, img.height);
+                        resolve(img);
+                    };
+                    img.src = `${bookNumber}_${String(i + 1).padStart(3, '0')}.jpg`;
+                });
+            }));
 
-                maxWidth = Math.max(maxWidth, canvas.width);
-                maxHeight = Math.max(maxHeight, canvas.height);
-
-                pages.push(canvas);
-            }
-
-            console.log('All pages rendered');
+            console.log('All images loaded');
 
             // Clear the book container
             bookContainer.innerHTML = '';
 
             // Create page elements with consistent dimensions
-            for (let i = 0; i < pages.length; i++) {
+            images.forEach((img, i) => {
                 const page = document.createElement('div');
                 page.className = 'page';
                 page.style.width = `${maxWidth}px`;
                 page.style.height = `${maxHeight}px`;
-
-                const wrapper = document.createElement('div');
-                wrapper.style.width = '100%';
-                wrapper.style.height = '100%';
-                wrapper.style.display = 'flex';
-                wrapper.style.justifyContent = 'center';
-                wrapper.style.alignItems = 'center';
-
-                wrapper.appendChild(pages[i]);
-                page.appendChild(wrapper);
+                page.style.backgroundImage = `url(${img.src})`;
                 bookContainer.appendChild(page);
-            }
+            });
 
             // Add an empty page if the total is odd
-            if (pages.length % 2 !== 0) {
+            if (images.length % 2 !== 0) {
                 const emptyPage = document.createElement('div');
                 emptyPage.className = 'page';
                 emptyPage.style.width = `${maxWidth}px`;
@@ -310,28 +296,15 @@
             console.log('Book container displayed');
         }
 
-        async function loadMobileBook() {
+        async function loadMobileBook(bookNumber) {
             console.log('Starting mobile book loading...');
             for (let i = 1; i <= pageCount; i++) {
-                console.log(`Rendering mobile page ${i}...`);
+                console.log(`Loading mobile page ${i}...`);
                 const page = document.createElement('div');
                 page.className = 'mobile-page';
 
-                const pdfPage = await pdfDoc.getPage(i);
-                const scale = window.innerWidth / pdfPage.getViewport({ scale: 1 }).width;
-                const viewport = pdfPage.getViewport({ scale });
-                const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-                const renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                await pdfPage.render(renderContext);
-
                 const img = document.createElement('img');
-                img.src = canvas.toDataURL();
+                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
                 page.appendChild(img);
                 mobileBookContainer.appendChild(page);
             }
