@@ -125,7 +125,6 @@
     <div class="button-container">
         <div class="button" onclick="loadBook('001')">001</div>
         <div class="button" onclick="loadBook('002')">002</div>
-        
     </div>
 
     <div id="book-container"></div>
@@ -167,7 +166,6 @@
 
         async function loadBook(bookNumber) {
             if (currentBook === bookNumber) return;
-            currentBook = bookNumber;
             
             loadingScreen.style.display = 'flex';
             bookContainer.style.display = 'none';
@@ -175,16 +173,25 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            // Determine the number of pages (you may need to adjust this based on your actual file structure)
-            pageCount = 72; // Example: assuming each book has 20 pages
-
-            if (isMobile) {
-                await loadMobileBook(bookNumber);
-            } else {
-                await loadDesktopBook(bookNumber);
+            // Destroy the previous Turn.js instance if it exists
+            if ($('#book-container').turn('is')) {
+                $('#book-container').turn('destroy');
             }
 
-            loadingScreen.style.display = 'none';
+            currentBook = bookNumber;
+            pageCount = 72; // Assuming each book has 72 pages
+
+            try {
+                if (isMobile) {
+                    await loadMobileBook(bookNumber);
+                } else {
+                    await loadDesktopBook(bookNumber);
+                }
+            } catch (error) {
+                console.error('Error loading book:', error);
+            } finally {
+                loadingScreen.style.display = 'none';
+            }
         }
 
         async function loadDesktopBook(bookNumber) {
@@ -214,6 +221,7 @@
                 acceleration: true,
                 gradients: true,
                 elevation: 50,
+                pages: pageCount,
                 when: {
                     turning: function(event, page, view) {
                         if (page === 1) {
