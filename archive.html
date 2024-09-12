@@ -56,13 +56,6 @@
             display: none;
         }
 
-        .page {
-            background-color: #f0f0f0;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
         #mobile-book-container {
             width: 100%;
             height: 80vh;
@@ -99,17 +92,6 @@
             font-size: 24px;
         }
 
-        #close-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 32px;
-            font-weight: bold;
-            color: black;
-            cursor: pointer;
-            z-index: 1001;
-        }
-
         /* Hide cursor on touch devices */
         @media (pointer: coarse) {
             #cursor {
@@ -129,8 +111,6 @@
 <body>
     <img id="cursor" src="cursorhover.png" alt="Custom Cursor">
     <canvas id="drawingCanvas"></canvas>
-
-    <div id="close-button" onclick="window.location.href='index.html'">X</div>
 
     <div class="button" onclick="loadBook('001')">001</div>
     <div class="button" onclick="loadBook('002')">002</div>
@@ -180,7 +160,6 @@
         }
 
         async function loadBook(bookNumber) {
-            console.log('Loading book:', bookNumber);
             if (currentBook === bookNumber) return;
             currentBook = bookNumber;
             
@@ -190,92 +169,45 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            try {
-                console.log('Fetching book pages...');
-                pageCount = await getPageCount(bookNumber);
-                console.log('Number of pages:', pageCount);
+            // Determine the number of pages (you may need to adjust this based on your actual file structure)
+            pageCount = 20; // Example: assuming each book has 20 pages
 
-                if (isMobile) {
-                    console.log('Loading mobile book...');
-                    await loadMobileBook(bookNumber);
-                } else {
-                    console.log('Loading desktop book...');
-                    await loadDesktopBook(bookNumber);
-                }
-
-                console.log('Book loaded successfully');
-            } catch (error) {
-                console.error('Error loading book:', error);
-                loadingScreen.innerHTML = 'Error loading book. Please try again.';
-            } finally {
-                loadingScreen.style.display = 'none';
+            if (isMobile) {
+                await loadMobileBook(bookNumber);
+            } else {
+                await loadDesktopBook(bookNumber);
             }
-        }
 
-        async function getPageCount(bookNumber) {
-            // This function should determine the number of pages for the given book
-            // You might want to implement this based on your specific setup
-            // For now, we'll return a fixed number as an example
-            return 10; // Replace with actual logic to determine page count
+            loadingScreen.style.display = 'none';
         }
 
         async function loadDesktopBook(bookNumber) {
-            console.log('Starting desktop book loading...');
-            let maxWidth = 0;
-            let maxHeight = 0;
-
-            // Pre-load all images to get dimensions
-            const images = await Promise.all(Array.from({length: pageCount}, (_, i) => {
-                return new Promise((resolve) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        maxWidth = Math.max(maxWidth, img.width);
-                        maxHeight = Math.max(maxHeight, img.height);
-                        resolve(img);
-                    };
-                    img.src = `${bookNumber}_${String(i + 1).padStart(3, '0')}.jpg`;
-                });
-            }));
-
-            console.log('All images loaded');
-
-            // Clear the book container
-            bookContainer.innerHTML = '';
-
-            // Create page elements with consistent dimensions
-            images.forEach((img, i) => {
+            const pages = [];
+            for (let i = 1; i <= pageCount; i++) {
                 const page = document.createElement('div');
                 page.className = 'page';
-                page.style.width = `${maxWidth}px`;
-                page.style.height = `${maxHeight}px`;
-                page.style.backgroundImage = `url(${img.src})`;
-                bookContainer.appendChild(page);
-            });
+                page.style.width = '100%';
+                page.style.height = '100%';
+                pages.push(page);
 
-            // Add an empty page if the total is odd
-            if (images.length % 2 !== 0) {
-                const emptyPage = document.createElement('div');
-                emptyPage.className = 'page';
-                emptyPage.style.width = `${maxWidth}px`;
-                emptyPage.style.height = `${maxHeight}px`;
-                bookContainer.appendChild(emptyPage);
+                const img = document.createElement('img');
+                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                page.appendChild(img);
             }
 
-            // Set the book container dimensions
-            bookContainer.style.width = `${maxWidth * 2}px`;
-            bookContainer.style.height = `${maxHeight}px`;
+            bookContainer.append(...pages);
 
-            console.log('Initializing Turn.js...');
-            // Initialize Turn.js
-            $(bookContainer).turn({
-                width: maxWidth * 2,
-                height: maxHeight,
+            $('#book-container').turn({
+                width: 800,
+                height: 600,
                 autoCenter: true,
-                duration: 600,
+                duration: 1000,
                 acceleration: true,
                 gradients: true,
                 elevation: 50,
-                pages: bookContainer.children.length,
                 when: {
                     turning: function(event, page, view) {
                         if (page === 1) {
@@ -285,32 +217,23 @@
                 }
             });
 
-            // Make sure Turn.js is aware of all pages
-            $(bookContainer).turn('peel', 'br');
-            $(bookContainer).turn('page', 1);
-
-            console.log('Turn.js initialized');
-
-            // Display the book container
             bookContainer.style.display = 'block';
-            console.log('Book container displayed');
         }
 
         async function loadMobileBook(bookNumber) {
-            console.log('Starting mobile book loading...');
             for (let i = 1; i <= pageCount; i++) {
-                console.log(`Loading mobile page ${i}...`);
                 const page = document.createElement('div');
                 page.className = 'mobile-page';
 
                 const img = document.createElement('img');
                 img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                img.style.width = '100%';
+                img.style.height = 'auto';
                 page.appendChild(img);
                 mobileBookContainer.appendChild(page);
             }
 
             mobileBookContainer.style.display = 'block';
-            console.log('Mobile book loaded and displayed');
         }
 
         // Drawing functionality
