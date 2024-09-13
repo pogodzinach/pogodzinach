@@ -125,6 +125,7 @@
     <div class="button-container">
         <div class="button" onclick="selectBook('001')">001</div>
         <div class="button" onclick="selectBook('002')">002</div>
+        <div class="button" onclick="selectBook('003')">003</div>
     </div>
 
     <div id="book-container"></div>
@@ -164,20 +165,17 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
-        // Function to handle book selection and page refresh
         function selectBook(bookNumber) {
             if (currentBook !== bookNumber) {
                 window.location.href = window.location.pathname + '?book=' + bookNumber;
             }
         }
 
-        // Function to get the selected book from URL parameters
         function getSelectedBook() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('book');
         }
 
-        // Load the book based on URL parameter
         window.onload = function() {
             const selectedBook = getSelectedBook();
             if (selectedBook) {
@@ -194,7 +192,7 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            pageCount = 72; // Assuming each book has 72 pages
+            pageCount = bookNumber === '003' ? 1 : 72;
 
             if (isMobile) {
                 await loadMobileBook(bookNumber);
@@ -215,7 +213,11 @@
                 pages.push(page);
 
                 const img = document.createElement('img');
-                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                if (bookNumber === '003' && i === 1) {
+                    img.src = 'okladka.png';
+                } else {
+                    img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                }
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.objectFit = 'contain';
@@ -250,7 +252,11 @@
                 page.className = 'mobile-page';
 
                 const img = document.createElement('img');
-                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                if (bookNumber === '003' && i === 1) {
+                    img.src = 'okladka.png';
+                } else {
+                    img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                }
                 img.style.width = '100%';
                 img.style.height = 'auto';
                 page.appendChild(img);
@@ -260,7 +266,6 @@
             mobileBookContainer.style.display = 'block';
         }
 
-        // Drawing functionality
         if (window.matchMedia("(pointer: coarse)").matches) {
             ctx.lineWidth = 10;
             ctx.lineCap = 'round';
