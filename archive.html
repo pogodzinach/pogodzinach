@@ -165,17 +165,20 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
+        // Function to handle book selection and page refresh
         function selectBook(bookNumber) {
             if (currentBook !== bookNumber) {
                 window.location.href = window.location.pathname + '?book=' + bookNumber;
             }
         }
 
+        // Function to get the selected book from URL parameters
         function getSelectedBook() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('book');
         }
 
+        // Load the book based on URL parameter
         window.onload = function() {
             const selectedBook = getSelectedBook();
             if (selectedBook) {
@@ -192,7 +195,8 @@
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            pageCount = bookNumber === '003' ? 1 : 72;
+            // Set page count based on the book number
+            pageCount = bookNumber === '003' ? 110 : 72; // Book 003 has 110 pages, others have 72
 
             if (isMobile) {
                 await loadMobileBook(bookNumber);
@@ -213,11 +217,7 @@
                 pages.push(page);
 
                 const img = document.createElement('img');
-                if (bookNumber === '003' && i === 1) {
-                    img.src = 'okladka.png';
-                } else {
-                    img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
-                }
+                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.objectFit = 'contain';
@@ -252,11 +252,7 @@
                 page.className = 'mobile-page';
 
                 const img = document.createElement('img');
-                if (bookNumber === '003' && i === 1) {
-                    img.src = 'okladka.png';
-                } else {
-                    img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
-                }
+                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
                 img.style.width = '100%';
                 img.style.height = 'auto';
                 page.appendChild(img);
@@ -266,6 +262,7 @@
             mobileBookContainer.style.display = 'block';
         }
 
+        // Drawing functionality
         if (window.matchMedia("(pointer: coarse)").matches) {
             ctx.lineWidth = 10;
             ctx.lineCap = 'round';
