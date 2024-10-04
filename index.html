@@ -62,7 +62,7 @@
             right: 0;
         }
 
-        #drzemka {
+        #openCall {
             bottom: 0;
             left: 0;
         }
@@ -105,12 +105,20 @@
     <!-- Buttons -->
     <div id="info" class="button" onclick="window.location.href='info.html'">INFO</div>
     <div id="insta" class="button" onclick="window.location.href='https://www.instagram.com/po_godzinach_zin/'">INSTA</div>
-    <div id="drzemka" class="button" onclick="window.location.href='https://www.facebook.com/events/926342952626759'">003 DRZEMKA 13.09 SPATIF</div>
+    <div id="openCall" class="button" onclick="window.location.href='mailto:pogodzinach.zin@gmail.com'">OPEN CALL 004 POLSKA</div>
     <div id="archive" class="button" onclick="window.location.href='archive.html'">ARCHIVE</div>
 
     <script>
         const canvas = document.getElementById('drawingCanvas');
         const ctx = canvas.getContext('2d');
+
+        // Flip the logo every 2 seconds
+        const logo = document.getElementById('logo');
+        let currentLogo = 'logopogodzinach.svg';
+        setInterval(() => {
+            currentLogo = (currentLogo === 'logopogodzinach.svg') ? 'open call zin-02.svg' : 'logopogodzinach.svg';
+            logo.src = currentLogo;
+        }, 2000);
 
         // Function to generate a random color
         function getRandomColor() {
