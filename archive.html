@@ -97,14 +97,12 @@
             font-size: 24px;
         }
 
-        /* Hide cursor on touch devices */
         @media (pointer: coarse) {
             #cursor {
                 display: none;
             }
         }
 
-        /* Mobile styles */
         @media (max-width: 800px) {
             .button {
                 font-size: 24px;
@@ -126,6 +124,8 @@
         <div class="button" onclick="selectBook('001')">001</div>
         <div class="button" onclick="selectBook('002')">002</div>
         <div class="button" onclick="selectBook('003')">003</div>
+        <div class="button" onclick="selectBook('004')">004</div>
+        <div class="button" onclick="selectBook('005')">005</div> <!-- New book added -->
     </div>
 
     <div id="book-container"></div>
@@ -165,20 +165,17 @@
             document.body.style.backgroundColor = getRandomColor();
         }
 
-        // Function to handle book selection and page refresh
         function selectBook(bookNumber) {
             if (currentBook !== bookNumber) {
                 window.location.href = window.location.pathname + '?book=' + bookNumber;
             }
         }
 
-        // Function to get the selected book from URL parameters
         function getSelectedBook() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('book');
         }
 
-        // Load the book based on URL parameter
         window.onload = function() {
             const selectedBook = getSelectedBook();
             if (selectedBook) {
@@ -188,15 +185,14 @@
 
         async function loadBook(bookNumber) {
             currentBook = bookNumber;
-            
+
             loadingScreen.style.display = 'flex';
             bookContainer.style.display = 'none';
             mobileBookContainer.style.display = 'none';
             bookContainer.innerHTML = '';
             mobileBookContainer.innerHTML = '';
 
-            // Set page count based on the book number
-            pageCount = bookNumber === '003' ? 110 : 72; // Book 003 has 110 pages, others have 72
+            pageCount = bookNumber === '003' ? 110 : bookNumber === '004' ? 108 : bookNumber === '005' ? 100 : 72;
 
             if (isMobile) {
                 await loadMobileBook(bookNumber);
@@ -260,68 +256,6 @@
             }
 
             mobileBookContainer.style.display = 'block';
-        }
-
-        // Drawing functionality
-        if (window.matchMedia("(pointer: coarse)").matches) {
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = 'black';
-
-            let drawing = false;
-
-            function getTouchPos(canvas, touchEvent) {
-                const rect = canvas.getBoundingClientRect();
-                return {
-                    x: (touchEvent.touches[0].clientX - rect.left) * (canvas.width / rect.width),
-                    y: (touchEvent.touches[0].clientY - rect.top) * (canvas.height / rect.height)
-                };
-            }
-
-            function startDrawing(event) {
-                drawing = true;
-                const pos = getTouchPos(canvas, event);
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            }
-
-            function draw(event) {
-                if (!drawing) return;
-                const pos = getTouchPos(canvas, event);
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-
-            function stopDrawing() {
-                drawing = false;
-                ctx.closePath();
-            }
-
-            canvas.addEventListener('touchstart', startDrawing);
-            canvas.addEventListener('touchmove', draw);
-            canvas.addEventListener('touchend', stopDrawing);
-        } else {
-            const cursor = document.getElementById('cursor');
-
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-
-                ctx.lineTo(e.clientX, e.clientY);
-                ctx.strokeStyle = 'black';
-                ctx.lineWidth = 8;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-            });
-
-            document.addEventListener('mousedown', (e) => {
-                ctx.beginPath();
-                ctx.moveTo(e.clientX, e.clientY);
-            });
-
-            document.addEventListener('mouseup', () => {
-                ctx.closePath();
-            });
         }
     </script>
 </body>
