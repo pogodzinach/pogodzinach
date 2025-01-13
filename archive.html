@@ -202,6 +202,15 @@
             loadingScreen.style.display = 'none';
         }
 
+        async function imageExists(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
         async function loadDesktopBook(bookNumber) {
             const pages = [];
             for (let i = 1; i <= pageCount; i++) {
@@ -212,10 +221,22 @@
                 pages.push(page);
 
                 const img = document.createElement('img');
-                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.objectFit = 'contain';
+
+                const jpgPath = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                const pngPath = `${bookNumber}_${String(i).padStart(3, '0')}.png`;
+
+                if (await imageExists(jpgPath)) {
+                    img.src = jpgPath;
+                } else if (await imageExists(pngPath)) {
+                    img.src = pngPath;
+                } else {
+                    console.warn(`Image not found for page ${i}`);
+                    continue;
+                }
+
                 page.appendChild(img);
             }
 
@@ -247,7 +268,19 @@
                 page.className = 'mobile-page';
 
                 const img = document.createElement('img');
-                img.src = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+
+                const jpgPath = `${bookNumber}_${String(i).padStart(3, '0')}.jpg`;
+                const pngPath = `${bookNumber}_${String(i).padStart(3, '0')}.png`;
+
+                if (await imageExists(jpgPath)) {
+                    img.src = jpgPath;
+                } else if (await imageExists(pngPath)) {
+                    img.src = pngPath;
+                } else {
+                    console.warn(`Image not found for page ${i}`);
+                    continue;
+                }
+
                 img.style.width = '100%';
                 img.style.height = 'auto';
                 page.appendChild(img);
