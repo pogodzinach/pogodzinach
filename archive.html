@@ -125,7 +125,7 @@
         <div class="button" onclick="selectBook('002')">002</div>
         <div class="button" onclick="selectBook('003')">003</div>
         <div class="button" onclick="selectBook('004')">004</div>
-        <div class="button" onclick="selectBook('005')">005</div> <!-- New book added -->
+        <div class="button" onclick="selectBook('005')">005</div>
     </div>
 
     <div id="book-container"></div>
@@ -166,9 +166,8 @@
         }
 
         function selectBook(bookNumber) {
-            if (currentBook !== bookNumber) {
-                window.location.href = window.location.pathname + '?book=' + bookNumber;
-            }
+            const newUrl = window.location.pathname + '?book=' + bookNumber;
+            window.location.href = newUrl;
         }
 
         function getSelectedBook() {
